@@ -706,10 +706,20 @@ function startLoadingAnimation(){
 }
 async function login() {
   try {
-    await signInWithEmailAndPassword(
-      auth,
-      email.value + "@rkfashions.com",
-      password.value
+
+    const userCredential =
+      await signInWithEmailAndPassword(
+        auth,
+        email.value + "@rkfashions.com",
+        password.value
+      );
+
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify({
+        username: email.value,
+        uid: userCredential.user.uid
+      })
     );
 
     alert("Login Success ✅");
