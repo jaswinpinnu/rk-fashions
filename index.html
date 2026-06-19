@@ -1093,14 +1093,21 @@ async function confirmPayment(method) {
 console.log("Current User:", currentUser);
 console.log("Username Saved:", currentUser.username);
   await saveOrder(order);
-  sendWhatsAppNotification(order);
+sendWhatsAppNotification(order);
 
-  document.getElementById("successTotal").innerHTML =
-    "Total Paid: ₹" + total;
+// Save order locally
+let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+orders.push(order);
+localStorage.setItem("orders", JSON.stringify(orders));
 
-  localStorage.setItem("cart", JSON.stringify([]));
+document.getElementById("successTotal").innerHTML =
+  "Total Paid: ₹" + total;
 
-  showPage("successPage");
+// Clear cart after saving order
+localStorage.removeItem("cart");
+cart = [];
+
+showPage("successPage");
 }
 function showUPI(){
   let total = 0;
