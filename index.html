@@ -1016,7 +1016,7 @@ function saveAddress(){
 
   showPage("paymentPage");
 }
- function confirmPayment(method) {
+async function confirmPayment(method) {
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   if (cart.length === 0) {
@@ -1040,7 +1040,7 @@ function saveAddress(){
   };
 
   // WhatsApp notification
- awaitsaveOrder(order);
+ await saveOrder(order);
 sendWhatsAppNotification(order);
 
   document.getElementById("successTotal").innerHTML =
