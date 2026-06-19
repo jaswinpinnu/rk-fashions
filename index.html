@@ -1016,7 +1016,7 @@ function saveAddress(){
 
   showPage("paymentPage");
 }
-async function confirmPayment(method) {
+ function confirmPayment(method) {
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   if (cart.length === 0) {
