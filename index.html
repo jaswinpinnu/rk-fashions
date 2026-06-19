@@ -780,55 +780,48 @@ function resetPassword(){
   showPage("loginPage");
 }
 async function showOrderHistory() {
+  try {
+    const currentUser =
+      JSON.parse(localStorage.getItem("currentUser"));
 
-  const currentUser =
-    JSON.parse(localStorage.getItem("currentUser"));
+    console.log("Current User:", currentUser);
 
-  const q = query(
-    collection(db, "orders"),
-    where("username", "==", currentUser.username)
-  );
+    const q = query(
+      collection(db, "orders"),
+      where("username", "==", currentUser.username)
+    );
 
-  const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
 
-  const container =
-    document.getElementById("orderHistoryList");
+    console.log("Orders:", snapshot.size);
 
-  if (snapshot.empty) {
-    container.innerHTML =
-      "<p>No orders yet ❌</p>";
-  } else {
+    const container =
+      document.getElementById("orderHistoryList");
 
     let html = "";
 
     snapshot.forEach((doc) => {
-
       const order = doc.data();
 
       html += `
         <div class="card">
           <h4>🧾 Order</h4>
-
-          <p>
-            ${order.items.map(i => i.name).join(", ")}
-          </p>
-
+          <p>${order.items.map(i => i.name).join(", ")}</p>
           <p><b>Total:</b> ₹${order.total}</p>
-
-          <small>Ordered: ${order.date}</small><br>
-
-          <small>
-            Delivery by:
-            ${order.deliveryDate || "5 days"}
-          </small>
+          <small>${order.date}</small>
         </div>
       `;
     });
 
-    container.innerHTML = html;
-  }
+    container.innerHTML =
+      html || "<p>No Orders Found ❌</p>";
 
-  showPage("orderHistoryPage");
+    showPage("orderHistoryPage");
+
+  } catch(err) {
+    console.error(err);
+    alert(err.message);
+  }
 }
 function cancelOrder(index) {
     let orders = JSON.parse(localStorage.getItem("orders") || "[]");
@@ -1049,7 +1042,8 @@ async function confirmPayment(method) {
     address: address,
     status: "Processing"
   };
-
+console.log("Current User:", currentUser);
+console.log("Username Saved:", currentUser.username);
   await saveOrder(order);
   sendWhatsAppNotification(order);
 
@@ -1282,7 +1276,7 @@ async function saveOrder(order) {
   deliveryDate.setDate(deliveryDate.getDate() + 5);
 
   order.deliveryDate = deliveryDate.toLocaleDateString();
-
+  console.log("Saving Order:", order);
   await addDoc(
     collection(db, "orders"),
     order
