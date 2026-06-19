@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RK FASHIONS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial;
+      margin:0;
+      background: url('https://static.vecteezy.com/system/resources/thumbnails/049/482/969/small/blurred-clothing-rack-in-retail-store-photo.jpg') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+   header {
+  padding:15px;
+  text-align:center;
+  font-size:28px;
+  font-family: 'Playfair Display', serif;
+  letter-spacing:2px;
+  color:black;
+}
+
+    .container {
+      padding:20px;
+      text-align:center;
+      margin:30px;
+      border-radius:10px;
+      position:relative;
+    }
+    #logoutBtn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background: red;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+#logoutBtn:hover {
+  background: darkred;
+}
+
+    input {
+      padding:10px;
+      margin:10px;
+      width:220px;
+    }
+    .address-box {
+  position:absolute;
+  top:20px;
+  right:20px;
+  width:250px;
+  padding:12px;
+  border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  font-size:13px;
+  text-align:left;
+}
+
+    button {
+      padding:10px 15px;
+      background:#fb641b;
+      color:white;
+      border:none;
+      cursor:pointer;
+      margin:10px;
+      border-radius:5px;
+    }
+
+    .remove-btn { background:red; }
+
+    .new-user {
+      color:#2874f0;
+      font-weight:bold;
+    }
+
+    .category-list {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+    }
+
+    .category-list button {
+      width:220px;
+    }
+
+    .products {
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+
+    .card {
+      background:white;
+      margin:15px;
+      padding:10px;
+      width:200px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+      border-radius:6px;
+    }
+
+    img {
+      width:150px;
+      height:150px;
+      object-fit: cover;
+      border-radius:8px;
+    }
+
+    .hidden { display:none; }
+
+    .back-btn {
+      position:absolute;
+      left:20px;
+      top:20px;
+    }
+
+    .cart-container {
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:20px;
+    }
+
+    #paymentPage button {
+      width:200px;
+      display:block;
+      margin:10px auto;
+    }
+    #orderHistoryList {
+  margin-top: 60px;  
+}
+#strengthBar {
+  width: 220px;
+  height: 8px;
+  background: #ddd;
+  border-radius: 5px;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+#strengthBar div {
+  height: 100%;
+  width: 0%;
+  transition: 0.3s;
+}
+
+#strengthText {
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: bold;
+}
+
+.password-container {
+  position: relative;
+  display: inline-block;
+}
+
+.password-container input {
+  width: 220px;
+  padding-right: 20px;
+}
+
+.password-container button {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+/* =========================
+   MOBILE RESPONSIVE DESIGN
+========================= */
+@media screen and (max-width: 768px) {
+
+  header{
+    font-size:22px;
+    padding:12px;
+  }
+
+  .container{
+    margin:10px;
+    padding:15px;
+    width:auto;
+  }
+
+  input{
+  width:90%;
+  max-width:350px;
+  box-sizing:border-box;
+  margin-left:15px;
+}
+  .password-container{
+  position: relative;
+  width: 90%;
+  max-width: 350px;
+  margin: auto;
+}
+
+.password-container input{
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 40px;
+}
+
+.password-container button{
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: auto !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline-block !important;
+
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+  button{
+    width:90%;
+    max-width:350px;
+    margin:8px auto;
+    display:block;
+  }
+
+  .category-list button{
+    width:90%;
+  }
+
+  .products{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:15px;
+  }
+
+  .card{
+    width:90%;
+    margin:auto;
+  }
+
+  .card img{
+    width:100%;
+    height:auto;
+    max-height:250px;
+  }
+
+  .cart-container{
+    flex-direction:column;
+    align-items:center;
+  }
+
+  .address-box{
+    position:static;
+    width:90%;
+    margin:15px auto;
+  }
+
+  #logoutBtn{
+    top:10px;
+    left:10px;
+    padding:8px 12px;
+    font-size:12px;
+    width:auto;
+  }
+
+  #orderBtn{
+    position:fixed;
+    top:10px;
+    right:10px;
+    width:auto;
+    padding:8px 12px;
+    font-size:12px;
+    z-index:9999;
+  }
+
+  .back-btn{
+    position:static;
+    width:auto;
+    margin-bottom:15px;
+  }
+
+  #upiQR{
+    width:180px !important;
+    height:180px !important;
+  }
+
+  #previewImage{
+    width:120px !important;
+  }
+
+  #loadingPage h2{
+    font-size:20px;
+  }
+
+  #orderHistoryList{
+    margin-top:20px;
+  }
+}
+
+/* Extra Small Phones */
+@media screen and (max-width: 480px){
+
+  header{
+    font-size:18px;
+    letter-spacing:1px;
+  }
+
+  h2{
+    font-size:20px;
+  }
+
+  .card{
+    padding:12px;
+  }
+
+  .card h4{
+    font-size:16px;
+  }
+
+  .card p{
+    font-size:14px;
+  }
+
+  #logoutBtn,
+  #orderBtn{
+    font-size:11px;
+    padding:6px 10px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>RK FASHIONS</header>
+<button id="logoutBtn" onclick="logout()">🚪 Logout</button>
+<button id="orderBtn" onclick="showOrderHistory()">📜 Order History</button>
+<div id="loadingPage" style="
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+
+  height:100vh;
+  width:100%;
+
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:9999;
+
+  background: url('https://static.vecteezy.com/system/resources/thumbnails/049/482/969/small/blurred-clothing-rack-in-retail-store-photo.jpg') no-repeat center;
+  background-size: cover;
+">
+
+  <!-- Center Container -->
+  <div style="
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 30px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 320px;
+
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  ">
+
+    <h2 style="margin-bottom:20px;">Loading RK FASHIONS...</h2>
+
+    <!-- Progress Bar -->
+    <div style="
+      width:100%;
+      height:12px;
+      background:#eee;
+      border-radius:10px;
+      overflow:hidden;
+    ">
+      <div id="progressBar" style="
+        width:0%;
+        height:100%;
+        background:#fb641b;
+        transition: width 0.3s;
+      "></div>
+    </div>
+
+    <!-- Percentage -->
+    <p id="progressText" style="margin-top:10px; font-weight:bold;">0%</p>
+
+  </div>
+
+</div>
+<!-- LOGIN -->
+<div id="loginPage" class="container">
+  <h2>Login</h2>
+<input id="email" placeholder="Username" autocomplete="off"><br>
+<div class="password-container">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="togglePassword('password', this)">👁️</button>
+</div>
+<p style="color:black; cursor:pointer;" onclick="showForgotPage()">
+  Forgot Password?
+</p>
+  <button onclick="login()">Login</button>
+  <div id="savedAddressBox" class="address-box"></div>
+  <p class="new-user">New user?</p>
+  <button onclick="showRegister()">Create Account</button>
+  <button onclick="deleteAccount()" style="background:black;color:white;">
+  🗑️ Delete Account
+</button>
+</div>
+<!-- ORDER HISTORY PAGE -->
+<div id="orderHistoryPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
+  <h2>Order History</h2>
+  <div id="orderHistoryList"></div>
+</div>
+<!-- REGISTER -->
+<div id="registerPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
+  <h2>Create Account</h2>
+
+  <input id="newUser" placeholder="Username"><br>
+
+  <div class="password-container">
+    <input id="newPass" type="password" placeholder="Password"
+    oninput="checkStrength(this.value)">
+    <button onclick="togglePassword('newPass', this)">👁️</button>
+  </div>
+
+  <!-- 🔥 Strength Meter -->
+  <div id="strengthBar"></div>
+  <p id="strengthText"></p>
+
+  <button onclick="register()">Register</button>
+</div>
+<!-- FORGOT PASSWORD -->
+<div id="forgotPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
+  <h2>Reset Password</h2>
+
+  <input id="fpUser" placeholder="Enter Username"><br>
+
+  <div class="password-container">
+    <input id="fpNewPass" type="password" placeholder="New Password"
+    oninput="checkStrength(this.value)">
+    <button onclick="togglePassword('fpNewPass', this)">👁️</button>
+  </div>
+
+  <!-- 🔥 Strength Meter -->
+  <div id="strengthBar"></div>
+  <p id="strengthText"></p>
+
+  <button onclick="resetPassword()">Reset Password</button>
+</div>
+
+<!-- CATEGORY -->
+<div id="categoryPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
+  <h2>Select Category</h2>
+  <div class="category-list">
+    <button onclick="selectCategory('Men')">Men</button>
+    <button onclick="selectCategory('Women')">Women</button>
+   <button onclick="showKidsOptions()">Kids</button>
+  </div>
+</div>
+<div id="kidsPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('categoryPage')">⬅</button>
+
+  <h2>Select Kids Category</h2>
+
+  <div class="category-list">
+    <button onclick="selectCategory('Kids Boys')">👦 Boys</button>
+    <button onclick="selectCategory('Kids Girls')">👧 Girls</button>
+  </div>
+</div>
+<!-- PRODUCTS -->
+<div id="productPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('categoryPage')">⬅</button>
+  <h2>Products</h2>
+  <div class="products" id="products"></div>
+  <button onclick="showCart()">Go to Cart</button>
+</div>
+<!-- CART -->
+<div id="cartPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('productPage')">⬅</button>
+  <h2>Your Cart</h2>
+  <div id="cart"></div>
+  <h3 id="total"></h3>
+</div>
+<!-- ADDRESS PAGE -->
+<div id="addressPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('cartPage')">⬅</button>
+  <h2>Delivery Address</h2>
+  <input id="fullname" placeholder="Full Name"><br>
+  <input id="phone" placeholder="Mobile Number"><br>
+  <input id="pincode" placeholder="Pincode"><br>
+  <input id="city" placeholder="City"><br>
+  <input id="state" placeholder="State"><br>
+  <input id="address" placeholder="Full Address"><br>
+
+  <button onclick="saveOnly()">💾 Save Address</button>
+  <button onclick="saveAddress()">Continue to Payment ➡</button>
+</div>
+<!-- PAYMENT -->
+<div id="paymentPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('cartPage')">⬅</button>
+
+  <h2>Payment</h2>
+  <p>Select Payment Method:</p>
+  <button onclick="showUPI()">UPI</button>
+</div>
+
+<!-- UPI PAGE -->
+<div id="upiPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('paymentPage')">⬅</button>
+
+  <h2>Scan & Pay (UPI)</h2>
+
+  <img id="upiQR" style="width:200px;height:200px;"><br><br>
+
+  <p>Scan this QR using PhonePe / GPay</p>
+
+  <!-- 📸 Screenshot Upload -->
+  <input type="file" id="paymentProof" accept="image/*"><br><br>
+
+  <!-- 👀 Preview Image -->
+  <img id="previewImage" style="width:150px; display:none; border-radius:10px;"><br><br>
+
+  <!-- 🚀 Send Screenshot Button -->
+  <button onclick="sendScreenshot()">Send Screenshot to WhatsApp</button>
+
+  <!-- ✅ Final Confirm -->
+  <button onclick="confirmPayment('UPI')">Done Payment</button>
+</div>
+
+
+<!-- ORDER SUCCESS PAGE -->
+<div id="successPage" class="container hidden">
+  <h2 style="color:green;">🎉 Order Placed Successfully!</h2>
+  <h3 id="successTotal"></h3>
+  <p style="color:black;">
+  📦 Your order will be delivered within 4-5 days
+</p>
+  <p>delivery charges are applible for as per your destination</p>
+  <p>Thank you for shopping with RK FASHIONS 💖</p>
+  <button onclick="continueShopping()">Continue Shopping 🛍️</button>
+</div>
+<script>
+let selectedCategory = "";
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+// PRODUCTS
+let data = JSON.parse(localStorage.getItem("products")) || [
+  {
+  name: "Bicep Down Shoulder Tshirt",
+  price: 350,
+  category: "Men",
+  size: "38",
+  image: "dark brown.jpg"
+},
+{
+  name: "Bicep Full Sweatshirt",
+  price: 400,
+  category: "Men",
+  size: "38",
+  image: "cream.png"
+},
+{
+  name: "Bicep Full Sweatshirt",
+  price: 400,
+  category: "Men",
+  size: "36",
+  image: "chocolate.jpg"
+},
+{
+  name: "Bicep Down Shoulder Tshirt",
+  price: 350,
+  category: "Men",
+  size: "38",
+  image: "beige.jpg"
+},
+{
+  name: "Bicep Down Shoulder T-Shirt ",
+  price: 350,
+  category: "Men",
+  size: "38",
+  image: "black.jpg"
+},
+{
+  name: "Bicep Valley green T-Shirt",
+  price: 350,
+  category: "Men",
+  size: "38",
+  image: "valley green.jpg"
+},
+{
+  name: "Bicep full sweatshirt",
+  price: 450,
+  category: "Men",
+  size: "36",
+  image: "green.jpg"
+},
+{
+  name:"Sadhika Lavender Pink Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"3 piece set.jpeg"
+},
+  {
+  name:"Sadhika Yellow Floral Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"yellow.jpg"
+},
+{
+  name:"Sadhika Teal Embroidered Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"teal.jpg"
+},
+{
+  name:"Sadhika Navy Blue Floral Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"navy blue.jpg"
+},
+{
+  name:"Sadhika Pink Floral Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"pink.jpg"
+},
+{
+  name:"Sadhika Sage Green Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"sage green.jpg"
+},
+{
+  name:"Sadhika Wine Purple Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"wine purple.jpg"
+},
+{
+  name:"Sadhika Emerald Green Set",
+  price:699,
+  category:"Women",
+  size:"L",
+  image:"emerald green.jpg"
+},
+];
+function showLoadingThenLogin(){
+  const loading = document.getElementById("loadingPage");
+  loading.style.display = "flex";
+
+  startLoadingAnimation(); // ✅ THIS IS IMPORTANT
+}
+function startLoadingAnimation(){
+  let progress = 0;
+
+  const bar = document.getElementById("progressBar");
+  const text = document.getElementById("progressText");
+
+  const interval = setInterval(() => {
+
+    progress += 2; 
+
+    if(progress >= 100){
+      progress = 100;
+      clearInterval(interval);
+
+      setTimeout(() => {
+        document.getElementById("loadingPage").style.display = "none";
+        showPage("loginPage");
+      }, 300);
+    }
+
+    bar.style.width = progress + "%";
+    text.innerText = progress + "%";
+
+  }, 50); 
+}
+async function login() {
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      email.value + "@rkfashions.com",
+      password.value
+    );
+
+    alert("Login Success ✅");
+    showPage("categoryPage");
+
+  } catch (error) {
+    alert("Invalid Username or Password ❌");
+  }
+}
+function showSavedAddress(){
+  const addr = JSON.parse(localStorage.getItem("address"));
+  const box = document.getElementById("savedAddressBox");
+
+  if(addr){
+    box.style.display = "block";
+    box.innerHTML = `
+      <h4>Saved Address</h4>
+      <b>${addr.name}</b><br>
+      📞 ${addr.phone}<br>
+      🏠 ${addr.address}, ${addr.city}, ${addr.state} - ${addr.pincode}
+    `;
+  } else {
+    box.style.display = "none";
+  }
+}
+function logout(){
+  alert("Logged out 🚪");
+
+  localStorage.removeItem("currentUser"); // 🔥 important
+
+  document.getElementById("email").value = "";
+  document.getElementById("password").value = "";
+  localStorage.removeItem("cart");
+
+  showPage("loginPage");
+}
+
+function resetPassword(){
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+  const userIndex = users.findIndex(u => u.username === fpUser.value);
+
+  if(userIndex === -1){
+    alert("User not found ❌");
+    return;
+  }
+
+  if(!isValidPassword(fpNewPass.value)){
+    alert("Password must be at least 6 characters, include 1 uppercase and 1 special character ❌");
+    return;
+  }
+
+  users[userIndex].password = fpNewPass.value;
+
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("Password updated successfully ✅");
+  showPage("loginPage");
+}
+function showOrderHistory() {
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  let orders =
+    JSON.parse(localStorage.getItem("orders") || "[]");
+
+  const userOrders = orders.filter(
+    o => o.username === currentUser.username
+  );
+
+  const container =
+    document.getElementById("orderHistoryList");
+
+  if(userOrders.length === 0){
+    container.innerHTML = "<p>No orders yet ❌</p>";
+  }
+  else{
+
+    container.innerHTML = userOrders.map((order,index)=>{
+
+  let cancelBtn = `
+  <button onclick="cancelOrder(${index})" style="background:red;">
+    Cancel Order ❌
+  </button>
+`;
+
+  return `
+        <div class="card">
+          <h4>🧾 Order</h4>
+
+          <p>${order.items.map(i => i.name).join(", ")}</p>
+
+          <p><b>Total:</b> ₹${order.total}</p>
+
+          <small>Ordered: ${order.date}</small><br>
+
+          <small>
+            Delivery by:
+            ${order.deliveryDate || "5 days"}
+          </small><br>
+
+          ${cancelBtn}
+        </div>
+      `;
+    }).join("");
+  }
+
+  showPage("orderHistoryPage");
+}
+function cancelOrder(index) {
+    let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+    // Check valid index
+    if (index < 0 || index >= orders.length) {
+        alert("❌ Invalid order");
+        return;
+    }
+
+    const cancelledOrder = orders[index];
+
+    // Confirmation
+    const confirmed = confirm(
+        "Are you sure you want to cancel this order?"
+    );
+
+    if (!confirmed) return;
+
+    // Send notification if function exists
+    if (typeof sendCancelNotification === "function") {
+        sendCancelNotification(cancelledOrder);
+    }
+
+    // Remove order
+    orders.splice(index, 1);
+
+    // Save updated orders
+    localStorage.setItem("orders", JSON.stringify(orders));
+
+    alert("✅ Order Cancelled Successfully");
+
+    // Refresh order history
+    showOrderHistory();
+}
+// REGISTER
+async function register() {
+  try {
+    await createUserWithEmailAndPassword(
+      auth,
+      newUser.value + "@rkfashions.com",
+      newPass.value
+    );
+
+    alert("Account Created ✅");
+    showPage("loginPage");
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
+
+function showRegister(){ showPage("registerPage"); }
+
+function selectCategory(cat){
+  selectedCategory = cat;
+  loadProducts();
+  showPage("productPage");
+}
+function loadProducts(){
+
+  const filtered =
+    data.filter(p => p.category === selectedCategory);
+
+  document.getElementById("products").innerHTML =
+
+    filtered.map((p,index) => `
+
+      <div class="card">
+
+        <img src="${p.image}">
+
+        <h4>${p.name}</h4>
+
+        <p>₹${p.price}</p>
+
+        ${
+          p.size
+          ? `<p><b>Size:</b> ${p.size}</p>`
+          : `<p><b>Free Size</b></p>`
+        }
+
+        <button onclick='addToCart(${JSON.stringify(p)})'>
+          Add to Cart
+        </button>
+
+      </div>
+
+    `).join("");
+}
+// CART
+function addToCart(p){
+  cart.push(p);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  alert("Added to cart 🛒");
+}
+
+function showCart(){
+  showPage("cartPage");
+  let total = 0;
+
+  document.getElementById("cart").innerHTML =
+    `<div class="cart-container">` +
+    cart.map((p,index)=>{
+      total += p.price;
+      return `
+        <div class="card">
+          <img src="${p.image}">
+          <h4>${p.name}</h4>
+          <p>₹${p.price}</p>
+          <p>Size: ${p.size || "Free Size"}</p>
+          <button class="remove-btn" onclick="removeItem(${index})">Remove ❌</button>
+        </div>`;
+    }).join("") + `</div>`;
+
+  document.getElementById("total").innerHTML =
+    `<span style="color:black; font-size:22px; font-weight:bold;">
+     Total: ₹${total}
+   </span><br><br>
+   <button onclick="checkout()">Checkout 💳</button>`;
+}
+
+function removeItem(index){
+  cart.splice(index,1);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  showCart();
+}
+
+// CHECKOUT → PAYMENT
+function checkout(){
+  if(cart.length === 0){
+    alert("Cart is empty 🛒");
+    return;
+  }
+
+  showPage("addressPage");
+}
+function displayAddress(){
+  const addr = JSON.parse(localStorage.getItem("address"));
+
+  if(addr){
+    document.getElementById("showAddress").innerHTML = `
+      <b>${addr.name}</b><br>
+      📞 ${addr.phone}<br>
+      🏠 ${addr.address}, ${addr.city}, ${addr.state} - ${addr.pincode}
+    `;
+  }
+}
+function saveOnly(){
+  if(
+    !fullname.value ||
+    !phone.value ||
+    !pincode.value ||
+    !city.value ||
+    !state.value ||
+    !address.value
+  ){
+    alert("Please fill all details ❌");
+    return;
+  }
+
+  const userAddress = {
+    name: fullname.value,
+    phone: phone.value,
+    pincode: pincode.value,
+    city: city.value,
+    state: state.value,
+    address: address.value
+  };
+
+  localStorage.setItem("address", JSON.stringify(userAddress));
+
+  alert("Address Saved ✅");
+}
+function loadSavedAddress(){
+  const addr = JSON.parse(localStorage.getItem("address"));
+
+  if(addr){
+    fullname.value = addr.name;
+    phone.value = addr.phone;
+    pincode.value = addr.pincode;
+    city.value = addr.city;
+    state.value = addr.state;
+    address.value = addr.address;
+  }
+}
+function saveAddress(){
+  saveOnly(); 
+
+  const addr = JSON.parse(localStorage.getItem("address"));
+
+  if(!addr){
+    return;
+  }
+
+  showPage("paymentPage");
+}
+async function confirmPayment(method) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  if (cart.length === 0) {
+    alert("Cart is empty ❌");
+    return;
+  }
+
+  let total = 0;
+  cart.forEach(p => total += Number(p.price));
+
+  const address = JSON.parse(localStorage.getItem("address"));
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  const order = {
+    username: currentUser.username,
+    items: cart,
+    total: total,
+    date: new Date().toLocaleString(),
+    address: address,
+    status: "Processing"
+  };
+
+  // WhatsApp notification
+ awaitsaveOrder(order);
+sendWhatsAppNotification(order);
+
+  document.getElementById("successTotal").innerHTML =
+    "Total Paid: ₹" + total;
+
+  localStorage.setItem("cart", JSON.stringify([]));
+
+  showPage("successPage");
+}
+function showUPI(){
+  let total = 0;
+
+  cart.forEach(p => total += p.price);
+
+  const upiID = "9704974080-3@ybl"; 
+  const name = "RamKishore Cloth Emporium";
+
+  const upiLink = `upi://pay?pa=${upiID}&pn=${name}&am=${total}&cu=INR`;
+
+  const qrURL = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(upiLink);
+
+  document.getElementById("upiQR").src = qrURL;
+
+  showPage("upiPage");
+}
+function continueShopping(){
+  showPage("categoryPage");
+}
+// NAV
+function goBack(page){ showPage(page); }
+function showPage(id){
+  document.querySelectorAll(".container").forEach(p =>
+    p.classList.add("hidden")
+  );
+
+  document.getElementById(id).classList.remove("hidden");
+
+  const logoutBtn = document.getElementById("logoutBtn");
+  const orderBtn = document.getElementById("orderBtn");
+
+  if(id === "loginPage"){
+    logoutBtn.style.display = "none";
+    orderBtn.style.display = "none";
+  }
+  else if(id === "registerPage"){
+    logoutBtn.style.display = "block";
+    orderBtn.style.display = "none"; // Hide only Order History
+  }
+  else{
+    logoutBtn.style.display = "block";
+    orderBtn.style.display = "block";
+  }
+
+  if(id === "addressPage"){
+    loadSavedAddress();
+  }
+}
+function sendWhatsAppNotification(order) {
+  if (!order || !order.items) {
+    alert("Order data missing ❌");
+    return;
+  }
+
+  const phone = "919704974080";
+
+  let address = null;
+  try {
+    address = JSON.parse(localStorage.getItem("address"));
+  } catch (e) {}
+
+  let addressText = "";
+  if (address) {
+    addressText =
+      `👤 Name: ${address.name}\n` +
+      `📞 Phone: ${address.phone}\n` +
+      `🏠 Address: ${address.address}, ${address.city}, ${address.state} - ${address.pincode}\n\n`;
+  }
+
+  const itemsText = order.items
+    .map(i => `• ${i.name} - ₹${Number(i.price)}`)
+    .join("\n");
+
+  const message =
+    `🛒 *NEW ORDER ALERT*\n\n` +
+    addressText +
+    `📦 Products:\n${itemsText}\n\n` +
+    `💰 Total: ₹${Number(order.total)}\n` +
+    `📅 ${order.date}`;
+
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+  window.open(url, "_blank");
+}
+function sendScreenshot() {
+  const fileInput = document.getElementById("paymentProof");
+
+  if (!fileInput.files.length) {
+    alert("Please upload payment screenshot ❌");
+    return;
+  }
+
+  const phone = "919704974080";
+
+  const message = `📸 Payment Screenshot Uploaded.\nPlease check the image sent by customer.`;
+
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+  // Open WhatsApp chat
+  window.open(url, "_blank");
+
+  alert("Now attach the screenshot manually in WhatsApp 📤");
+}
+window.onload = function(){
+  showSavedAddress();
+  showLoadingThenLogin();
+};
+function sendCancelNotification(order){
+  const phone = "919704974080"; // your WhatsApp number
+
+  const itemsText = order.items
+    .map(i => `• ${i.name} - ₹${i.price}`)
+    .join("\n");
+
+  const message =
+    `❌ *ORDER CANCELLED*\n\n` +
+    `📦 Products:\n${itemsText}\n\n` +
+    `💰 Total: ₹${order.total}\n` +
+    `📅 ${order.date}\n\n` +
+    `⚠️ Customer cancelled this order.`;
+
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+
+  window.open(url, "_blank");
+}
+function deleteAccount() {
+  let users = JSON.parse(localStorage.getItem("users") || "[]");
+  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+  const username = document.getElementById("email").value;
+
+  const index = users.findIndex(u => u.username === username);
+
+  if(index === -1){
+    alert("User not found ❌");
+    return;
+  }
+
+  if(confirm("Are you sure you want to delete your account? This cannot be undone ⚠️")){
+
+    // Delete user
+    users.splice(index, 1);
+    localStorage.setItem("users", JSON.stringify(users));
+
+    // Delete all orders of this user
+    orders = orders.filter(order => order.username !== username);
+    localStorage.setItem("orders", JSON.stringify(orders));
+
+    // Cleanup
+    localStorage.removeItem("cart");
+    localStorage.removeItem("address");
+    localStorage.removeItem("currentUser");
+
+    alert("Account and orders deleted successfully 🗑️");
+
+    showPage("loginPage");
+  }
+}
+function isValidPassword(password) {
+  const regex = /^(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
+  return regex.test(password);
+}
+function togglePassword(inputId, btn){
+  const input = document.getElementById(inputId);
+
+  if(input.type === "password"){
+    input.type = "text";
+    btn.innerText = "🙈";
+  } else {
+    input.type = "password";
+    btn.innerText = "👁️";
+  }
+}
+function checkStrength(password) {
+  let strength = 0;
+
+  if(password.length >= 6) strength++;
+  if(/[A-Z]/.test(password)) strength++;
+  if(/[!@#$%^&*]/.test(password)) strength++;
+  if(/[0-9]/.test(password)) strength++;
+
+  const bar = document.getElementById("strengthBar");
+  const text = document.getElementById("strengthText");
+
+  let innerBar = bar.querySelector("div");
+
+  if(!innerBar){
+    innerBar = document.createElement("div");
+    bar.appendChild(innerBar);
+  }
+
+  if(password.length === 0){
+    innerBar.style.width = "0%";
+    text.innerText = "";
+    return;
+  }
+
+  if(strength <= 1){
+    innerBar.style.width = "25%";
+    innerBar.style.background = "red";
+    text.innerText = "Weak 🔴";
+  }
+  else if(strength <= 3){
+    innerBar.style.width = "60%";
+    innerBar.style.background = "orange";
+    text.innerText = "Medium 🟡";
+  }
+  else{
+    innerBar.style.width = "100%";
+    innerBar.style.background = "green";
+    text.innerText = "Strong 🟢";
+  }
+}
+function showKidsOptions(){
+  showPage("kidsPage");
+}
+async function saveOrder(order) {
+
+  const deliveryDate = new Date();
+  deliveryDate.setDate(deliveryDate.getDate() + 5);
+
+  order.deliveryDate = deliveryDate.toLocaleDateString();
+
+  await addDoc(
+    collection(db, "orders"),
+    order
+  );
+
+  console.log("Order Saved ✅");
+}
+
+</script>
+<!-- Firebase SDK -->
+ 
+<script type="module">
+
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
+    authDomain: "rkfashions-cf673.firebaseapp.com",
+    projectId: "rkfashions-cf673",
+  storageBucket: "rkfashions-cf673.firebasestorage.app",
+  messagingSenderId: "285126427237",
+  appId: "1:285126427237:web:1eeceefbab182c81337c8c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  window.auth = auth;
+  window.db = db;
+
+  window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+  window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+  window.signOut = signOut;
+
+  window.collection = collection;
+  window.addDoc = addDoc;
+  window.getDocs = getDocs;
+  window.query = query;
+  window.where = where;
+</script>
+</body>
+</html>
