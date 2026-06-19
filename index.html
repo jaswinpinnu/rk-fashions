@@ -433,20 +433,27 @@
 <!-- REGISTER -->
 <div id="registerPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
+
   <h2>Create Account</h2>
 
   <input id="newUser" placeholder="Username"><br>
 
   <div class="password-container">
     <input id="newPass" type="password" placeholder="Password"
-    oninput="checkStrength(this.value)">
+      oninput="checkStrength(this.value)">
     <button onclick="togglePassword('newPass', this)">👁️</button>
   </div>
 
-  <!-- 🔥 Strength Meter -->
+  <!-- Password Strength -->
   <div id="strengthBar"></div>
   <p id="strengthText"></p>
 
+  <!-- Google Sign In -->
+  <button onclick="googleLogin()" style="background:#4285F4;">
+    🔵 Sign in with Google
+  </button>
+
+  <!-- Normal Register -->
   <button onclick="register()">Register</button>
 </div>
 <!-- FORGOT PASSWORD -->
@@ -730,6 +737,14 @@ async function login() {
   }
 }
 function showSavedAddress(){
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if(!currentUser){
+    document.getElementById("savedAddressBox").style.display = "none";
+    return;
+  }
   const addr = JSON.parse(localStorage.getItem("address"));
   const box = document.getElementById("savedAddressBox");
 
@@ -755,6 +770,7 @@ function logout(){
   localStorage.removeItem("cart");
 
   showPage("loginPage");
+  showSavedAddress();
 }
 
 function resetPassword(){
@@ -781,10 +797,14 @@ function resetPassword(){
 }
 async function showOrderHistory() {
   try {
+
     const currentUser =
       JSON.parse(localStorage.getItem("currentUser"));
 
-    console.log("Current User:", currentUser);
+    if (!currentUser) {
+      alert("Please login first ❌");
+      return;
+    }
 
     const q = query(
       collection(db, "orders"),
@@ -793,31 +813,63 @@ async function showOrderHistory() {
 
     const snapshot = await getDocs(q);
 
-    console.log("Orders:", snapshot.size);
-
     const container =
       document.getElementById("orderHistoryList");
 
     let html = "";
 
-    snapshot.forEach((doc) => {
-      const order = doc.data();
+    snapshot.forEach((docSnap) => {
 
-     html += `
-  <div class="card">
-    <h4>🧾 Order</h4>
-    <p>${order.items.map(i => i.name).join(", ")}</p>
-    <p><b>Total:</b> ₹${order.total}</p>
-    <p><b>Status:</b> ${order.status || "Processing"}</p>
-    <small>${order.date}</small><br><br>
+      const order = docSnap.data();
+      const orderId = docSnap.id;
 
-    <button
-      style="background:red;color:white;"
-      onclick="cancelOrder(${index})">
-      ❌ Cancel Order
-    </button>
-  </div>
-`;
+      html += `
+        <div class="card">
+
+          <h4>🧾 Order</h4>
+
+          <p>
+            <b>Items:</b><br>
+            ${order.items
+              .map(item => `${item.name} (₹${item.price})`)
+              .join("<br>")}
+          </p>
+
+          <p><b>Total:</b> ₹${order.total}</p>
+
+          <p>
+            <b>Status:</b>
+            ${order.status || "Processing"}
+          </p>
+
+          <p>
+            <b>Delivery:</b>
+            ${order.deliveryDate || "Not Available"}
+          </p>
+
+          <small>${order.date}</small>
+
+          <br><br>
+
+          ${
+            order.status !== "Cancelled"
+              ? `
+                <button
+                  style="background:red;color:white"
+                  onclick="cancelOrder('${orderId}')">
+                  ❌ Cancel Order
+                </button>
+              `
+              : `
+                <button disabled
+                  style="background:gray;color:white">
+                  Cancelled
+                </button>
+              `
+          }
+
+        </div>
+      `;
     });
 
     container.innerHTML =
@@ -825,20 +877,34 @@ async function showOrderHistory() {
 
     showPage("orderHistoryPage");
 
-  } catch(err) {
+  } catch (err) {
     console.error(err);
-    alert(err.message);
+    alert("Failed to load orders ❌");
   }
 }
-async function cancelOrder(orderId){
+async function cancelOrder(orderId) {
 
-  if(!confirm("Cancel this order?")) return;
+  try {
 
-  await deleteDoc(doc(db, "orders", orderId));
+    const confirmed =
+      confirm("Are you sure you want to cancel this order?");
 
-  alert("✅ Order Cancelled");
+    if (!confirmed) return;
 
-  showOrderHistory();
+    await deleteDoc(
+      doc(db, "orders", orderId)
+    );
+
+    alert("✅ Order Cancelled Successfully");
+
+    showOrderHistory();
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Failed to cancel order ❌");
+  }
 }
 // REGISTER
 async function register() {
@@ -1162,37 +1228,42 @@ function sendCancelNotification(order){
 
   window.open(url, "_blank");
 }
-function deleteAccount() {
-  let users = JSON.parse(localStorage.getItem("users") || "[]");
-  let orders = JSON.parse(localStorage.getItem("orders") || "[]");
 
-  const username = document.getElementById("email").value;
+async function deleteAccount() {
 
-  const index = users.findIndex(u => u.username === username);
+  const user = auth.currentUser;
 
-  if(index === -1){
-    alert("User not found ❌");
+  if (!user) {
+    alert("Please login first ❌");
     return;
   }
 
-  if(confirm("Are you sure you want to delete your account? This cannot be undone ⚠️")){
+  const ok = confirm(
+    "Are you sure you want to delete your account? This cannot be undone ⚠️"
+  );
 
-    // Delete user
-    users.splice(index, 1);
-    localStorage.setItem("users", JSON.stringify(users));
+  if (!ok) return;
 
-    // Delete all orders of this user
-    orders = orders.filter(order => order.username !== username);
-    localStorage.setItem("orders", JSON.stringify(orders));
+  try {
 
-    // Cleanup
+    await deleteUser(user);
+
     localStorage.removeItem("cart");
     localStorage.removeItem("address");
     localStorage.removeItem("currentUser");
 
-    alert("Account and orders deleted successfully 🗑️");
+    alert("Account deleted successfully 🗑️");
 
     showPage("loginPage");
+    showSavedAddress();
+  } catch (error) {
+    console.error(error);
+
+    if (error.code === "auth/requires-recent-login") {
+      alert("Please login again and then delete your account.");
+    } else {
+      alert(error.message);
+    }
   }
 }
 function isValidPassword(password) {
@@ -1267,7 +1338,34 @@ async function saveOrder(order) {
 
   console.log("Order Saved ✅");
 }
+async function googleRegister() {
+  try {
 
+    const result = await signInWithPopup(
+      auth,
+      provider
+    );
+
+    const user = result.user;
+
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify({
+        username: user.displayName,
+        email: user.email,
+        uid: user.uid
+      })
+    );
+
+    alert("Google Account Connected ✅");
+
+    showPage("categoryPage");
+
+  } catch (error) {
+    console.error(error);
+    alert("Google Sign Up Failed ❌");
+  }
+}
 </script>
 <!-- Firebase SDK -->
  
@@ -1275,12 +1373,14 @@ async function saveOrder(order) {
 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
   import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signOut,
+  deleteUser
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
   collection,
@@ -1304,20 +1404,28 @@ async function saveOrder(order) {
   const app = initializeApp(firebaseConfig);
 
   const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+window.provider = provider;
+window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
 
   window.auth = auth;
-  window.db = db;
+window.db = db;
 
-  window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
-  window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-  window.signOut = signOut;
+window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+window.signOut = signOut;
 
-  window.collection = collection;
-  window.addDoc = addDoc;
-  window.getDocs = getDocs;
-  window.query = query;
-  window.where = where;
+window.collection = collection;
+window.addDoc = addDoc;
+window.getDocs = getDocs;
+window.query = query;
+window.where = where;
+
+window.deleteDoc = deleteDoc;
+window.doc = doc;
+window.deleteUser = deleteUser;
 </script>
 </body>
 </html>
