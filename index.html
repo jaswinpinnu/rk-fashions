@@ -968,11 +968,7 @@ function addToCart(p){
 }
 
 function showCart(){
-
-  cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
   showPage("cartPage");
-
   let total = 0;
 
   document.getElementById("cart").innerHTML =
@@ -980,13 +976,20 @@ function showCart(){
     cart.map((p,index)=>{
       total += p.price;
       return `
-      <div class="card">
-        <img src="${p.image}">
-        <h4>${p.name}</h4>
-        <p>₹${p.price}</p>
-        <button onclick="removeItem(${index})">Remove ❌</button>
-      </div>`;
+        <div class="card">
+          <img src="${p.image}">
+          <h4>${p.name}</h4>
+          <p>₹${p.price}</p>
+          <p>Size: ${p.size || "Free Size"}</p>
+          <button class="remove-btn" onclick="removeItem(${index})">Remove ❌</button>
+        </div>`;
     }).join("") + `</div>`;
+
+  document.getElementById("total").innerHTML =
+    `<span style="color:black; font-size:22px; font-weight:bold;">
+     Total: ₹${total}
+   </span><br><br>
+   <button onclick="checkout()">Checkout 💳</button>`;
 }
 
 function removeItem(index){
@@ -1090,18 +1093,14 @@ async function confirmPayment(method) {
 console.log("Current User:", currentUser);
 console.log("Username Saved:", currentUser.username);
   await saveOrder(order);
-sendWhatsAppNotification(order);
+  sendWhatsAppNotification(order);
 
-// Save order locally
-let orders = JSON.parse(localStorage.getItem("orders") || "[]");
-orders.push(order);
-localStorage.setItem("orders", JSON.stringify(orders));
+  document.getElementById("successTotal").innerHTML =
+    "Total Paid: ₹" + total;
 
-document.getElementById("successTotal").innerHTML =
-  "Total Paid: ₹" + total;
+  localStorage.setItem("cart", JSON.stringify([]));
 
-cart = [];
-localStorage.setItem("cart", JSON.stringify([]));
+  showPage("successPage");
 }
 function showUPI(){
   let total = 0;
@@ -1120,8 +1119,6 @@ function showUPI(){
   showPage("upiPage");
 }
 function continueShopping(){
-  cart = [];
-  localStorage.setItem("cart", JSON.stringify([]));
   showPage("categoryPage");
 }
 // NAV
