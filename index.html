@@ -803,14 +803,21 @@ async function showOrderHistory() {
     snapshot.forEach((doc) => {
       const order = doc.data();
 
-      html += `
-        <div class="card">
-          <h4>🧾 Order</h4>
-          <p>${order.items.map(i => i.name).join(", ")}</p>
-          <p><b>Total:</b> ₹${order.total}</p>
-          <small>${order.date}</small>
-        </div>
-      `;
+     html += `
+  <div class="card">
+    <h4>🧾 Order</h4>
+    <p>${order.items.map(i => i.name).join(", ")}</p>
+    <p><b>Total:</b> ₹${order.total}</p>
+    <p><b>Status:</b> ${order.status || "Processing"}</p>
+    <small>${order.date}</small><br><br>
+
+    <button
+      style="background:red;color:white;"
+      onclick="cancelOrder(${index})">
+      ❌ Cancel Order
+    </button>
+  </div>
+`;
     });
 
     container.innerHTML =
@@ -823,39 +830,15 @@ async function showOrderHistory() {
     alert(err.message);
   }
 }
-function cancelOrder(index) {
-    let orders = JSON.parse(localStorage.getItem("orders") || "[]");
+async function cancelOrder(orderId){
 
-    // Check valid index
-    if (index < 0 || index >= orders.length) {
-        alert("❌ Invalid order");
-        return;
-    }
+  if(!confirm("Cancel this order?")) return;
 
-    const cancelledOrder = orders[index];
+  await deleteDoc(doc(db, "orders", orderId));
 
-    // Confirmation
-    const confirmed = confirm(
-        "Are you sure you want to cancel this order?"
-    );
+  alert("✅ Order Cancelled");
 
-    if (!confirmed) return;
-
-    // Send notification if function exists
-    if (typeof sendCancelNotification === "function") {
-        sendCancelNotification(cancelledOrder);
-    }
-
-    // Remove order
-    orders.splice(index, 1);
-
-    // Save updated orders
-    localStorage.setItem("orders", JSON.stringify(orders));
-
-    alert("✅ Order Cancelled Successfully");
-
-    // Refresh order history
-    showOrderHistory();
+  showOrderHistory();
 }
 // REGISTER
 async function register() {
@@ -1298,14 +1281,16 @@ async function saveOrder(order) {
     signOut
   } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-  import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    query,
-    where
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+ import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
