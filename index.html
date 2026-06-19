@@ -1017,6 +1017,7 @@ function saveAddress(){
   showPage("paymentPage");
 }
 async function confirmPayment(method) {
+
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   if (cart.length === 0) {
@@ -1039,9 +1040,8 @@ async function confirmPayment(method) {
     status: "Processing"
   };
 
-  // WhatsApp notification
- await saveOrder(order);
-sendWhatsAppNotification(order);
+  await saveOrder(order);
+  sendWhatsAppNotification(order);
 
   document.getElementById("successTotal").innerHTML =
     "Total Paid: ₹" + total;
