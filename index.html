@@ -779,39 +779,39 @@ function resetPassword(){
   alert("Password updated successfully ✅");
   showPage("loginPage");
 }
-function showOrderHistory() {
+async function showOrderHistory() {
 
   const currentUser =
     JSON.parse(localStorage.getItem("currentUser"));
 
-  let orders =
-    JSON.parse(localStorage.getItem("orders") || "[]");
-
-  const userOrders = orders.filter(
-    o => o.username === currentUser.username
+  const q = query(
+    collection(db, "orders"),
+    where("username", "==", currentUser.username)
   );
+
+  const snapshot = await getDocs(q);
 
   const container =
     document.getElementById("orderHistoryList");
 
-  if(userOrders.length === 0){
-    container.innerHTML = "<p>No orders yet ❌</p>";
-  }
-  else{
+  if (snapshot.empty) {
+    container.innerHTML =
+      "<p>No orders yet ❌</p>";
+  } else {
 
-    container.innerHTML = userOrders.map((order,index)=>{
+    let html = "";
 
-  let cancelBtn = `
-  <button onclick="cancelOrder(${index})" style="background:red;">
-    Cancel Order ❌
-  </button>
-`;
+    snapshot.forEach((doc) => {
 
-  return `
+      const order = doc.data();
+
+      html += `
         <div class="card">
           <h4>🧾 Order</h4>
 
-          <p>${order.items.map(i => i.name).join(", ")}</p>
+          <p>
+            ${order.items.map(i => i.name).join(", ")}
+          </p>
 
           <p><b>Total:</b> ₹${order.total}</p>
 
@@ -820,12 +820,12 @@ function showOrderHistory() {
           <small>
             Delivery by:
             ${order.deliveryDate || "5 days"}
-          </small><br>
-
-          ${cancelBtn}
+          </small>
         </div>
       `;
-    }).join("");
+    });
+
+    container.innerHTML = html;
   }
 
   showPage("orderHistoryPage");
