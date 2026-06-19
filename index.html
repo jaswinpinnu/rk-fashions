@@ -1103,11 +1103,8 @@ localStorage.setItem("orders", JSON.stringify(orders));
 document.getElementById("successTotal").innerHTML =
   "Total Paid: ₹" + total;
 
-// Clear cart after saving order
-localStorage.removeItem("cart");
 cart = [];
-
-showPage("successPage");
+localStorage.setItem("cart", JSON.stringify([]));
 }
 function showUPI(){
   let total = 0;
@@ -1126,6 +1123,8 @@ function showUPI(){
   showPage("upiPage");
 }
 function continueShopping(){
+  cart = [];
+  localStorage.setItem("cart", JSON.stringify([]));
   showPage("categoryPage");
 }
 // NAV
