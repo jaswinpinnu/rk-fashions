@@ -713,17 +713,19 @@ function startLoadingAnimation(){
 async function login() {
   try {
 
+    const username = email.value.trim().toLowerCase();
+
     const userCredential =
       await signInWithEmailAndPassword(
         auth,
-        email.value + "@rkfashions.com",
+        `${username}@rkfashions.com`,
         password.value
       );
 
     localStorage.setItem(
       "currentUser",
       JSON.stringify({
-        username: email.value,
+        username,
         uid: userCredential.user.uid
       })
     );
@@ -732,7 +734,7 @@ async function login() {
     showPage("categoryPage");
 
   } catch (error) {
-    alert("Invalid Username or Password ❌");
+    alert(error.message);
   }
 }
 function showSavedAddress(){
@@ -907,10 +909,24 @@ async function cancelOrder(orderId) {
 }
 // REGISTER
 async function register() {
+
+  const username = newUser.value.trim().toLowerCase();
+
+  if (!username) {
+    alert("Enter username");
+    return;
+  }
+
+  if (!isValidPassword(newPass.value)) {
+    alert("Password must contain uppercase and special character");
+    return;
+  }
+
   try {
+
     await createUserWithEmailAndPassword(
       auth,
-      newUser.value + "@rkfashions.com",
+      `${username}@rkfashions.com`,
       newPass.value
     );
 
@@ -918,10 +934,10 @@ async function register() {
     showPage("loginPage");
 
   } catch (error) {
+    console.error(error);
     alert(error.message);
   }
 }
-
 function showRegister(){ showPage("registerPage"); }
 
 function selectCategory(cat){
@@ -1099,7 +1115,7 @@ console.log("Username Saved:", currentUser.username);
     "Total Paid: ₹" + total;
 
   localStorage.setItem("cart", JSON.stringify([]));
-
+cart = [];
   showPage("successPage");
 }
 function showUPI(){
@@ -1337,6 +1353,7 @@ async function saveOrder(order) {
 
   console.log("Order Saved ✅");
 }
+
 async function googleRegister() {
   try {
 
@@ -1356,13 +1373,13 @@ async function googleRegister() {
       })
     );
 
-    alert("Google Account Connected ✅");
+    alert("Google Sign In Success ✅");
 
     showPage("categoryPage");
 
   } catch (error) {
     console.error(error);
-    alert("Google Sign Up Failed ❌");
+    alert(error.message);
   }
 }
 </script>
