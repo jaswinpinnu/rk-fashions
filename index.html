@@ -734,10 +734,24 @@ async function login() {
 
     const username = email.value.trim().toLowerCase();
 
+    const q = query(
+      collection(db, "users"),
+      where("username", "==", username)
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      alert("User not found ❌");
+      return;
+    }
+
+    const userData = snapshot.docs[0].data();
+
     const userCredential =
       await signInWithEmailAndPassword(
         auth,
-        `${username}@rkfashions.com`,
+        userData.email,
         password.value
       );
 
@@ -1376,23 +1390,38 @@ async function saveOrder(order) {
 async function googleRegister() {
   try {
 
-    const result = await signInWithPopup(
-      auth,
-      provider
-    );
-
+    const result = await signInWithPopup(auth, provider);
     const user = result.user;
+
+    const username = prompt("Create Username:");
+    const password = prompt("Create Password:");
+
+    if (!username || !password) {
+      alert("Username and Password required");
+      return;
+    }
+
+    const credential =
+      EmailAuthProvider.credential(
+        user.email,
+        password
+      );
+
+    await linkWithCredential(
+      user,
+      credential
+    );
 
     localStorage.setItem(
       "currentUser",
       JSON.stringify({
-        username: user.displayName,
+        username: username.toLowerCase(),
         email: user.email,
         uid: user.uid
       })
     );
 
-    alert("Google Sign In Success ✅");
+    alert("Google Account Linked Successfully ✅");
 
     showPage("categoryPage");
 
@@ -1414,7 +1443,9 @@ async function googleRegister() {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
-  deleteUser
+  deleteUser,
+  EmailAuthProvider,
+  linkWithCredential
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
