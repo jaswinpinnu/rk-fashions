@@ -734,24 +734,10 @@ async function login() {
 
     const username = email.value.trim().toLowerCase();
 
-    const q = query(
-      collection(db, "users"),
-      where("username", "==", username)
-    );
-
-    const snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      alert("User not found ❌");
-      return;
-    }
-
-    const userData = snapshot.docs[0].data();
-
     const userCredential =
       await signInWithEmailAndPassword(
         auth,
-        userData.email,
+        `${username}@rkfashions.com`,
         password.value
       );
 
@@ -1390,43 +1376,24 @@ async function saveOrder(order) {
 async function googleRegister() {
   try {
 
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-
-    const username = prompt("Create Username:");
-    const password = prompt("Create Password:");
-
-    if (!username || !password) {
-      alert("Username and Password required");
-      return;
-    }
-
-    const credential =
-      EmailAuthProvider.credential(
-        user.email,
-        password
-      );
-
-    await linkWithCredential(
-      user,
-      credential
+    const result = await signInWithPopup(
+      auth,
+      provider
     );
 
-    await addDoc(collection(db, "users"), {
-      username: username.toLowerCase(),
-      email: user.email
-    });
+    const user = result.user;
 
     localStorage.setItem(
       "currentUser",
       JSON.stringify({
-        username: username.toLowerCase(),
+        username: user.displayName,
         email: user.email,
         uid: user.uid
       })
     );
 
-    alert("Google Account Linked Successfully ✅");
+    alert("Google Sign In Success ✅");
+
     showPage("categoryPage");
 
   } catch (error) {
@@ -1447,9 +1414,7 @@ async function googleRegister() {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
-  deleteUser,
-  EmailAuthProvider,
-  linkWithCredential
+  deleteUser
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
@@ -1486,8 +1451,7 @@ window.db = db;
 window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 window.signInWithEmailAndPassword = signInWithEmailAndPassword;
 window.signOut = signOut;
-window.EmailAuthProvider = EmailAuthProvider;
-window.linkWithCredential = linkWithCredential;
+
 window.collection = collection;
 window.addDoc = addDoc;
 window.getDocs = getDocs;
