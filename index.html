@@ -191,25 +191,30 @@
     width:auto;
   }
 
+
+
   input{
-  width:90%;
-  max-width:350px;
-  box-sizing:border-box;
-  margin-left:15px;
-}
+    width:90%;
+    max-width:350px;
+    box-sizing:border-box;
+    margin-left:15px;
+  }
+
   .password-container{
-  position: relative;
-  width: 90%;
-  max-width: 350px;
-  margin: auto;
-}
+    position:relative;
+    width:90%;
+    max-width:350px;
 
-.password-container input{
-  width: 100%;
-  box-sizing: border-box;
-  padding-right: 40px;
-}
+    margin-left:15px;   /* same as input */
+    margin-right:0;
+  }
 
+  .password-container input{
+    width:100%;
+    margin-left:0;      /* prevent extra offset */
+    padding-right:40px;
+    box-sizing:border-box;
+  }
 .password-container button{
   position: absolute;
   right: 10px;
