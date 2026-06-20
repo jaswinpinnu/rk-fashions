@@ -1412,6 +1412,11 @@ async function googleRegister() {
       credential
     );
 
+    await addDoc(collection(db, "users"), {
+      username: username.toLowerCase(),
+      email: user.email
+    });
+
     localStorage.setItem(
       "currentUser",
       JSON.stringify({
@@ -1422,7 +1427,6 @@ async function googleRegister() {
     );
 
     alert("Google Account Linked Successfully ✅");
-
     showPage("categoryPage");
 
   } catch (error) {
