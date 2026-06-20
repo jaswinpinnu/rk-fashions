@@ -175,6 +175,22 @@
   cursor: pointer;
   font-size: 16px;
 }
+.google-btn{
+  background:white;
+  color:#444;
+  border:1px solid #ddd;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.google-btn img{
+  width:20px;
+  height:20px;
+}
 /* =========================
    MOBILE RESPONSIVE DESIGN
 ========================= */
@@ -453,8 +469,10 @@
   <div id="strengthBar"></div>
   <p id="strengthText"></p>
 
-  <button onclick="googleRegister()" style="background:red">
-  🔵 Sign in with Google
+  <<button onclick="googleRegister()" class="google-btn">
+  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+       alt="Google Logo">
+  Sign in with Google
 </button>
 
   <!-- Normal Register -->
