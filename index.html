@@ -1053,7 +1053,8 @@ function displayAddress(){
     `;
   }
 }
-function saveOnly(){
+async function saveOnly() {
+
   if(
     !fullname.value ||
     !phone.value ||
@@ -1066,41 +1067,88 @@ function saveOnly(){
     return;
   }
 
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if(!currentUser){
+    alert("Please login first ❌");
+    return;
+  }
+
   const userAddress = {
     name: fullname.value,
     phone: phone.value,
     pincode: pincode.value,
     city: city.value,
     state: state.value,
-    address: address.value
+    address: address.value,
+    updatedAt: new Date().toISOString()
   };
 
-  localStorage.setItem("address", JSON.stringify(userAddress));
+  await setDoc(
+    doc(db, "addresses", currentUser.uid),
+    userAddress
+  );
 
   alert("Address Saved ✅");
 }
-function loadSavedAddress(){
-  const addr = JSON.parse(localStorage.getItem("address"));
+async function loadSavedAddress() {
 
-  if(addr){
-    fullname.value = addr.name;
-    phone.value = addr.phone;
-    pincode.value = addr.pincode;
-    city.value = addr.city;
-    state.value = addr.state;
-    address.value = addr.address;
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if(!currentUser) return;
+
+  const docRef =
+    doc(db, "addresses", currentUser.uid);
+
+  const docSnap =
+    await getDoc(docRef);
+
+  if(docSnap.exists()){
+
+    const addr = docSnap.data();
+
+    fullname.value = addr.name || "";
+    phone.value = addr.phone || "";
+    pincode.value = addr.pincode || "";
+    city.value = addr.city || "";
+    state.value = addr.state || "";
+    address.value = addr.address || "";
   }
 }
-function saveAddress(){
-  saveOnly(); 
+async function showSavedAddress(){
 
-  const addr = JSON.parse(localStorage.getItem("address"));
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
 
-  if(!addr){
+  if(!currentUser){
+    savedAddressBox.style.display = "none";
     return;
   }
 
-  showPage("paymentPage");
+  const docSnap = await getDoc(
+    doc(db, "addresses", currentUser.uid)
+  );
+
+  if(!docSnap.exists()){
+    savedAddressBox.style.display = "none";
+    return;
+  }
+
+  const addr = docSnap.data();
+
+  savedAddressBox.style.display = "block";
+
+  savedAddressBox.innerHTML = `
+    <h4>Saved Address</h4>
+    <b>${addr.name}</b><br>
+    📞 ${addr.phone}<br>
+    🏠 ${addr.address},
+    ${addr.city},
+    ${addr.state} -
+    ${addr.pincode}
+  `;
 }
 async function confirmPayment(method) {
 
@@ -1424,7 +1472,9 @@ async function googleRegister() {
   query,
   where,
   deleteDoc,
-  doc
+  doc,
+  setDoc,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -1450,13 +1500,14 @@ window.db = db;
 
 window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 window.signInWithEmailAndPassword = signInWithEmailAndPassword;
-window.signOut = signOut;
-
+window.signOut = signOut;
 window.collection = collection;
 window.addDoc = addDoc;
 window.getDocs = getDocs;
 window.query = query;
 window.where = where;
+window.setDoc = setDoc;
+window.getDoc = getDoc;
 
 window.deleteDoc = deleteDoc;
 window.doc = doc;
