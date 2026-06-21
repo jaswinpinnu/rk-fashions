@@ -133,29 +133,12 @@
     }
     #orderHistoryList {
   margin-top: 60px;  
-}
-#strengthBar{
-  width:220px;
-  height:8px;
-  background:#ddd;
-  border-radius:5px;
-  overflow:hidden;
-  margin:8px auto; /* centers it */
-}
-
-#strengthText{
-  text-align:center;
-  font-size:12px;
-  margin-top:5px;
-  font-weight:bold;
-}
-
+}
 
 .password-container {
   position: relative;
   display: inline-block;
-}
-
+}
 .password-container input {
   width: 220px;
   padding-right: 20px;
@@ -456,15 +439,10 @@
   <input id="newUser" placeholder="Username"><br>
 
   <div class="password-container">
-    <input id="newPass" type="password" placeholder="Password"
-      oninput="checkStrength(this.value)">
+    <<input id="fpNewPass" type="password" placeholder="New Password">
     <button onclick="togglePassword('newPass', this)">👁️</button>
-  </div>
-
-  <!-- Password Strength -->
-  <div id="strengthBar"></div>
-  <p id="strengthText"></p>
-
+  </div>
+  
   <button onclick="googleRegister()" class="google-btn">
   <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
        alt="Google Logo">
@@ -482,14 +460,11 @@
   <input id="fpUser" placeholder="Enter Username"><br>
 
   <div class="password-container">
-    <input id="fpNewPass" type="password" placeholder="New Password"
-    oninput="checkStrength(this.value)">
+    <<input id="newPass" type="password" placeholder="Password">
     <button onclick="togglePassword('fpNewPass', this)">👁️</button>
   </div>
 
-  <!-- 🔥 Strength Meter -->
-  <div id="strengthBar"></div>
-  <p id="strengthText"></p>
+
 
   <button onclick="resetPassword()">Reset Password</button>
 </div>
@@ -1323,47 +1298,7 @@ function togglePassword(inputId, btn){
     input.type = "password";
     btn.innerText = "👁️";
   }
-}
-function checkStrength(password) {
-  let strength = 0;
 
-  if(password.length >= 6) strength++;
-  if(/[A-Z]/.test(password)) strength++;
-  if(/[!@#$%^&*]/.test(password)) strength++;
-  if(/[0-9]/.test(password)) strength++;
-
-  const bar = document.getElementById("strengthBar");
-  const text = document.getElementById("strengthText");
-
-  let innerBar = bar.querySelector("div");
-
-  if(!innerBar){
-    innerBar = document.createElement("div");
-    bar.appendChild(innerBar);
-  }
-
-  if(password.length === 0){
-    innerBar.style.width = "0%";
-    text.innerText = "";
-    return;
-  }
-
-  if(strength <= 1){
-    innerBar.style.width = "25%";
-    innerBar.style.background = "red";
-    text.innerText = "Weak 🔴";
-  }
-  else if(strength <= 3){
-    innerBar.style.width = "60%";
-    innerBar.style.background = "orange";
-    text.innerText = "Medium 🟡";
-  }
-  else{
-    innerBar.style.width = "100%";
-    innerBar.style.background = "green";
-    text.innerText = "Strong 🟢";
-  }
-}
 function showKidsOptions(){
   showPage("kidsPage");
 }
