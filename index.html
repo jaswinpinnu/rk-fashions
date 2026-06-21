@@ -996,9 +996,17 @@ function loadProducts(){
     `).join("");
 }
 // CART
-function addToCart(p){
+async function addToCart(p){
+
   cart.push(p);
-  localStorage.setItem("cart", JSON.stringify(cart));
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+
+  await saveCartToFirestore();
+
   alert("Added to cart 🛒");
 }
 
@@ -1026,10 +1034,17 @@ function showCart(){
    </span><br><br>
    <button onclick="checkout()">Checkout 💳</button>`;
 }
+async function removeItem(index){
 
-function removeItem(index){
   cart.splice(index,1);
-  localStorage.setItem("cart", JSON.stringify(cart));
+
+  localStorage.setItem(
+    "cart",
+    JSON.stringify(cart)
+  );
+
+  await saveCartToFirestore();
+
   showCart();
 }
 
@@ -1181,7 +1196,19 @@ console.log("Username Saved:", currentUser.username);
   document.getElementById("successTotal").innerHTML =
     "Total Paid: ₹" + total;
 
-  localStorage.setItem("cart", JSON.stringify([]));
+  cart = [];
+
+await setDoc(
+  doc(db,"carts",currentUser.uid),
+  {
+    items:[]
+  }
+);
+
+localStorage.setItem(
+  "cart",
+  JSON.stringify([])
+);
 cart = [];
   showPage("successPage");
 }
@@ -1447,6 +1474,43 @@ async function googleRegister() {
   } catch (error) {
     console.error(error);
     alert(error.message);
+  }
+}
+async function saveCartToFirestore() {
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if(!currentUser) return;
+
+  await setDoc(
+    doc(db, "carts", currentUser.uid),
+    {
+      items: cart,
+      updatedAt: new Date().toISOString()
+    }
+  );
+}
+async function loadCartFromFirestore() {
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if(!currentUser) return;
+
+  const cartDoc =
+    await getDoc(
+      doc(db, "carts", currentUser.uid)
+    );
+
+  if(cartDoc.exists()) {
+
+    cart = cartDoc.data().items || [];
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cart)
+    );
   }
 }
 </script>
