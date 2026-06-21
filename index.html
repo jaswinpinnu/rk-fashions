@@ -425,7 +425,7 @@
 <!-- LOGIN -->
 <div id="loginPage" class="container">
   <h2>Login</h2>
-<input id="email" placeholder="Username" autocomplete="off"><br>
+<input id="Email" placeholder="Username">
 <div class="password-container">
   <input id="password" type="password" placeholder="Password">
   <button onclick="togglePassword('password', this)">👁️</button>
@@ -793,27 +793,36 @@ function logout(){
   showSavedAddress();
 }
 
-function resetPassword(){
-  let users = JSON.parse(localStorage.getItem("users") || "[]");
+async function resetPassword() {
 
-  const userIndex = users.findIndex(u => u.username === fpUser.value);
+  const username =
+    document.getElementById("fpUser")
+    .value.trim()
+    .toLowerCase();
 
-  if(userIndex === -1){
-    alert("User not found ❌");
+  if(!username){
+    alert("Enter username ❌");
     return;
   }
 
-  if(!isValidPassword(fpNewPass.value)){
-    alert("Password must be at least 6 characters, include 1 uppercase and 1 special character ❌");
-    return;
+  try {
+
+    await sendPasswordResetEmail(
+      auth,
+      `${username}@rkfashions.com`
+    );
+
+    alert(
+      "Password reset email sent ✅\nCheck your inbox."
+    );
+
+    showPage("loginPage");
+
+  } catch(error){
+
+    console.error(error);
+    alert(error.message);
   }
-
-  users[userIndex].password = fpNewPass.value;
-
-  localStorage.setItem("users", JSON.stringify(users));
-
-  alert("Password updated successfully ✅");
-  showPage("loginPage");
 }
 async function showOrderHistory() {
   try {
@@ -1526,7 +1535,8 @@ async function loadCartFromFirestore() {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
-  deleteUser
+  deleteUser,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
@@ -1572,7 +1582,7 @@ window.query = query;
 window.where = where;
 window.setDoc = setDoc;
 window.getDoc = getDoc;
-
+window.sendPasswordResetEmail = sendPasswordResetEmail;
 window.deleteDoc = deleteDoc;
 window.doc = doc;
 window.deleteUser = deleteUser;
