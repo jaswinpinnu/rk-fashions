@@ -140,38 +140,50 @@
   margin-top:5px;
   font-weight:bold;
 }
-
+
 
 .password-container {
   position: relative;
-  display: inline-block;
+  width: 220px;
+  margin: 10px auto;
 }
 
 .password-container input {
-  width: 220px;
-  padding-right: 20px;
+  width: 100%;
+  padding-right: 45px;
+  box-sizing: border-box;
 }
 
 .password-container button {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: 10px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  height: auto;
+  font-size: 18px;
   cursor: pointer;
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.google-btn{
-  background:white;
-  color:#444;
-  border:1px solid #ddd;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-weight:bold;
-  cursor:pointer;
+.google-btn {
+  background: white;
+  color: #444;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: bold;
+  cursor: pointer;
+
+  width: 250px;
+  margin: 15px auto; /* centers the button */
 }
 
 .google-btn img{
