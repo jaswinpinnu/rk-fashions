@@ -425,7 +425,7 @@
 <!-- LOGIN -->
 <div id="loginPage" class="container">
   <h2>Login</h2>
-<input id="email" placeholder="Username" autocomplete="off"><br>
+<input id="email" type="email" placeholder="Email Address">
 <div class="password-container">
   <input id="password" type="password" placeholder="Password">
   <button onclick="togglePassword('password', this)">👁️</button>
@@ -453,8 +453,7 @@
 
   <h2>Create Account</h2>
 
-  <input id="newUser" placeholder="Username"><br>
-
+  <input id="newEmail" type="email" placeholder="Email Address">
   <div class="password-container">
     <input id="newPass" type="password" placeholder="Password"
       oninput="checkStrength(this.value)">
@@ -479,7 +478,7 @@
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
   <h2>Reset Password</h2>
 
-  <input id="fpUser" placeholder="Enter Username"><br>
+  <input id="fpEmail" type="email" placeholder="Enter Email Address">
 
   <div class="password-container">
     <input id="fpNewPass" type="password" placeholder="New Password"
@@ -730,21 +729,20 @@ function startLoadingAnimation(){
   }, 50); 
 }
 async function login() {
-  try {
 
-    const username = email.value.trim().toLowerCase();
+  try {
 
     const userCredential =
       await signInWithEmailAndPassword(
         auth,
-        `${username}@rkfashions.com`,
+        email.value.trim(),
         password.value
       );
 
     localStorage.setItem(
       "currentUser",
       JSON.stringify({
-        username,
+        email: userCredential.user.email,
         uid: userCredential.user.uid
       })
     );
@@ -793,27 +791,17 @@ function logout(){
   showSavedAddress();
 }
 
-function resetPassword(){
-  let users = JSON.parse(localStorage.getItem("users") || "[]");
+async function resetPassword() {
+  try {
+    await sendPasswordResetEmail(
+      auth,
+      fpEmail.value.trim()
+    );
 
-  const userIndex = users.findIndex(u => u.username === fpUser.value);
-
-  if(userIndex === -1){
-    alert("User not found ❌");
-    return;
+    alert("Password reset email sent ✅");
+  } catch (error) {
+    alert(error.message);
   }
-
-  if(!isValidPassword(fpNewPass.value)){
-    alert("Password must be at least 6 characters, include 1 uppercase and 1 special character ❌");
-    return;
-  }
-
-  users[userIndex].password = fpNewPass.value;
-
-  localStorage.setItem("users", JSON.stringify(users));
-
-  alert("Password updated successfully ✅");
-  showPage("loginPage");
 }
 async function showOrderHistory() {
   try {
@@ -929,15 +917,10 @@ async function cancelOrder(orderId) {
 // REGISTER
 async function register() {
 
-  const username = newUser.value.trim().toLowerCase();
+  const email = newEmail.value.trim();
 
-  if (!username) {
-    alert("Enter username");
-    return;
-  }
-
-  if (!isValidPassword(newPass.value)) {
-    alert("Password must contain uppercase and special character");
+  if (!email) {
+    alert("Enter Email");
     return;
   }
 
@@ -945,7 +928,7 @@ async function register() {
 
     await createUserWithEmailAndPassword(
       auth,
-      `${username}@rkfashions.com`,
+      email,
       newPass.value
     );
 
@@ -953,7 +936,6 @@ async function register() {
     showPage("loginPage");
 
   } catch (error) {
-    console.error(error);
     alert(error.message);
   }
 }
@@ -1527,7 +1509,8 @@ async function loadCartFromFirestore() {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
-  deleteUser
+  deleteUser,
+  sendPasswordResetEmail
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
@@ -1566,7 +1549,7 @@ window.db = db;
 window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 window.signInWithEmailAndPassword = signInWithEmailAndPassword;
 window.signOut = signOut;
-
+window.sendPasswordResetEmail = sendPasswordResetEmail;
 window.collection = collection;
 window.addDoc = addDoc;
 window.getDocs = getDocs;
