@@ -1258,39 +1258,42 @@ function showPage(id){
     loadSavedAddress();
   }
 }
-function sendWhatsAppNotification(order) {
-  if (!order || !order.items) {
-    alert("Order data missing ❌");
-    return;
-  }
+async function sendWhatsAppNotification(order) {
 
-  const phone = "919704974080";
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
 
-  let address = null;
-  try {
-    address = JSON.parse(localStorage.getItem("address"));
-  } catch (e) {}
+  const addressDoc = await getDoc(
+    doc(db, "addresses", currentUser.uid)
+  );
 
   let addressText = "";
-  if (address) {
+
+  if(addressDoc.exists()) {
+
+    const address = addressDoc.data();
+
     addressText =
       `👤 Name: ${address.name}\n` +
       `📞 Phone: ${address.phone}\n` +
       `🏠 Address: ${address.address}, ${address.city}, ${address.state} - ${address.pincode}\n\n`;
   }
 
+  const phone = "919704974080";
+
   const itemsText = order.items
-    .map(i => `• ${i.name} - ₹${Number(i.price)}`)
+    .map(i => `• ${i.name} - ₹${i.price}`)
     .join("\n");
 
   const message =
     `🛒 *NEW ORDER ALERT*\n\n` +
     addressText +
     `📦 Products:\n${itemsText}\n\n` +
-    `💰 Total: ₹${Number(order.total)}\n` +
+    `💰 Total: ₹${order.total}\n` +
     `📅 ${order.date}`;
 
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+  const url =
+    `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   window.open(url, "_blank");
 }
