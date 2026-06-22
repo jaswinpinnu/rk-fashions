@@ -767,30 +767,7 @@ async function login() {
     alert(error.message);
   }
 }
-function showSavedAddress(){
 
-  const currentUser =
-    JSON.parse(localStorage.getItem("currentUser"));
-
-  if(!currentUser){
-    document.getElementById("savedAddressBox").style.display = "none";
-    return;
-  }
-  const addr = JSON.parse(localStorage.getItem("address"));
-  const box = document.getElementById("savedAddressBox");
-
-  if(addr){
-    box.style.display = "block";
-    box.innerHTML = `
-      <h4>Saved Address</h4>
-      <b>${addr.name}</b><br>
-      📞 ${addr.phone}<br>
-      🏠 ${addr.address}, ${addr.city}, ${addr.state} - ${addr.pincode}
-    `;
-  } else {
-    box.style.display = "none";
-  }
-}
 function logout(){
   alert("Logged out 🚪");
 
