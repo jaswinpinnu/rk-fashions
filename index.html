@@ -821,11 +821,13 @@ async function showOrderHistory() {
     }
 
     const q = query(
-      collection(db, "orders"),
-      where("username", "==", currentUser.username)
-    );
+  collection(db, "orders"),
+  where("uid", "==", currentUser.uid)
+);
 
-    const snapshot = await getDocs(q);
+const snapshot = await getDocs(q);
+
+console.log("Orders Found:", snapshot.size);
 
     const container =
       document.getElementById("orderHistoryList");
