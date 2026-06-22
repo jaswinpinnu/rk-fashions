@@ -1109,6 +1109,24 @@ async function loadSavedAddress() {
     address.value = addr.address || "";
   }
 }
+async function saveAddress() {
+
+  if(
+    !fullname.value ||
+    !phone.value ||
+    !pincode.value ||
+    !city.value ||
+    !state.value ||
+    !address.value
+  ){
+    alert("Please fill all details ❌");
+    return;
+  }
+
+  await saveOnly();
+
+  showPage("paymentPage");
+}
 async function showSavedAddress(){
 
   const currentUser =
@@ -1153,8 +1171,13 @@ async function confirmPayment(method) {
 
   let total = 0;
   cart.forEach(p => total += Number(p.price));
+const addressDoc = await getDoc(
+  doc(db, "addresses", currentUser.uid)
+);
 
-  const address = JSON.parse(localStorage.getItem("address"));
+const address = addressDoc.exists()
+  ? addressDoc.data()
+  : null;
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
 
   const order = {
