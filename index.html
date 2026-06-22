@@ -1162,6 +1162,9 @@ async function showSavedAddress(){
 }
 async function confirmPayment(method) {
 
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
   if (cart.length === 0) {
@@ -1171,25 +1174,25 @@ async function confirmPayment(method) {
 
   let total = 0;
   cart.forEach(p => total += Number(p.price));
-const addressDoc = await getDoc(
-  doc(db, "addresses", currentUser.uid)
-);
 
-const address = addressDoc.exists()
-  ? addressDoc.data()
-  : null;
-  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const addressDoc = await getDoc(
+    doc(db, "addresses", currentUser.uid)
+  );
+
+  const address = addressDoc.exists()
+    ? addressDoc.data()
+    : null;
 
   const order = {
-    username: currentUser.username,
+    email: currentUser.email,
+    uid: currentUser.uid,
     items: cart,
     total: total,
     date: new Date().toLocaleString(),
     address: address,
     status: "Processing"
   };
-console.log("Current User:", currentUser);
-console.log("Username Saved:", currentUser.username);
+
   await saveOrder(order);
   sendWhatsAppNotification(order);
 
@@ -1198,18 +1201,13 @@ console.log("Username Saved:", currentUser.username);
 
   cart = [];
 
-await setDoc(
-  doc(db,"carts",currentUser.uid),
-  {
-    items:[]
-  }
-);
+  await setDoc(
+    doc(db, "carts", currentUser.uid),
+    { items: [] }
+  );
 
-localStorage.setItem(
-  "cart",
-  JSON.stringify([])
-);
-cart = [];
+  localStorage.setItem("cart", JSON.stringify([]));
+
   showPage("successPage");
 }
 function showUPI(){
