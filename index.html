@@ -900,9 +900,14 @@ console.log("Orders Found:", snapshot.size);
 
     showPage("orderHistoryPage");
 
-  } catch(err){
-  console.error("Order History Error:", err);
-  alert("Failed to load orders ❌\n" + err.message);
+  } catch (err) {
+  
+    console.error(err);
+  
+    alert("Failed to load orders ❌");
+  
+  }
+  
 }
 async function cancelOrder(orderId) {
 
