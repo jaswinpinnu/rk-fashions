@@ -703,6 +703,9 @@ function showLoadingThenLogin(){
 
   startLoadingAnimation(); // ✅ THIS IS IMPORTANT
 }
+function showForgotPage() {
+  showPage("forgotPage");
+}
 function startLoadingAnimation(){
   let progress = 0;
 
@@ -1440,6 +1443,16 @@ async function googleRegister() {
     );
 
     const user = result.user;
+
+    // Save user data in Firestore
+    await setDoc(
+      doc(db, "users", user.uid),
+      {
+        username: user.displayName,
+        email: user.email
+      },
+      { merge: true }
+    );
 
     localStorage.setItem(
       "currentUser",
