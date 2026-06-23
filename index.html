@@ -752,6 +752,9 @@ async function login() {
         password.value
       );
 
+    console.log("Firebase User:", auth.currentUser);
+    console.log("Logged User:", userCredential.user);
+
     localStorage.setItem(
       "currentUser",
       JSON.stringify({
@@ -764,6 +767,7 @@ async function login() {
     showPage("categoryPage");
 
   } catch (error) {
+    console.error(error);
     alert(error.message);
   }
 }
@@ -1078,12 +1082,17 @@ async function saveOnly() {
     address: address.value,
     updatedAt: new Date().toISOString()
   };
+const currentUser =
+  JSON.parse(localStorage.getItem("currentUser"));
 
-  await setDoc(
-    doc(db, "addresses", currentUser.uid),
-    userAddress
-  );
+console.log("Current User:", currentUser);
 
+console.log("Saving address...");
+
+await setDoc(
+  doc(db, "addresses", currentUser.uid),
+  userAddress
+);
   alert("Address Saved ✅");
 }
 async function loadSavedAddress() {
