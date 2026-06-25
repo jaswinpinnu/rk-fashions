@@ -760,9 +760,12 @@ async function login() {
     );
 
     alert("Login Success ✅");
-    await showSavedAddress();
-    showPage("categoryPage");
 
+await getFCMToken();
+
+await showSavedAddress();
+
+showPage("categoryPage");
   } catch (error) {
     console.error(error);
     alert(error.message);
@@ -1329,7 +1332,19 @@ function sendScreenshot() {
 
   alert("Now attach the screenshot manually in WhatsApp 📤");
 }
-window.onload = function(){
+window.onload = async function(){
+
+  if ("Notification" in window) {
+
+    const permission =
+      await Notification.requestPermission();
+
+    if(permission === "granted"){
+      console.log("Notification permission granted");
+    }
+
+  }
+
   showSavedAddress();
   showLoadingThenLogin();
 };
@@ -1538,7 +1553,10 @@ async function loadCartFromFirestore() {
   }
 }
 </script>
-<!-- Firebase SDK -->
+<script type="module">
+import { getMessaging, getToken }
+from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
+</script>
  
 <script type="module">
 
@@ -1551,7 +1569,9 @@ async function loadCartFromFirestore() {
   GoogleAuthProvider,
   signOut,
   deleteUser,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  getMessaging,
+  getToken
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
@@ -1583,7 +1603,30 @@ async function loadCartFromFirestore() {
 window.provider = provider;
 window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
+const messaging = getMessaging(app);
 
+async function getFCMToken() {
+
+  try {
+
+    const token = await getToken(
+      messaging,
+      {
+        vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
+      }
+    );
+
+    if(token){
+      console.log("FCM Token:", token);
+    } else {
+      console.log("No registration token available");
+    }
+
+  } catch(err){
+    console.error("FCM Error:", err);
+  }
+
+}
   window.auth = auth;
 window.db = db;
 
