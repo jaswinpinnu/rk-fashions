@@ -1504,6 +1504,25 @@ async function googleRegister() {
     alert(error.message);
   }
 }
+async function getFCMToken() {
+  try {
+    const token = await getToken(
+      messaging,
+      {
+        vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
+      }
+    );
+
+    if (token) {
+      console.log("FCM Token:", token);
+    } else {
+      console.log("No registration token available");
+    }
+
+  } catch (err) {
+    console.error("FCM Error:", err);
+  }
+}
 async function saveCartToFirestore() {
 
   const currentUser =
@@ -1539,6 +1558,25 @@ async function loadCartFromFirestore() {
       "cart",
       JSON.stringify(cart)
     );
+  }
+}
+async function getFCMToken() {
+  try {
+    const token = await getToken(
+      messaging,
+      {
+        vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
+      }
+    );
+
+    if (token) {
+      console.log("FCM Token:", token);
+    } else {
+      console.log("No registration token available");
+    }
+
+  } catch (err) {
+    console.error("FCM Error:", err);
   }
 }
 </script>
@@ -1591,25 +1629,6 @@ window.provider = provider;
 window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
 const messaging = getMessaging(app);
-async function getFCMToken() {
-  try {
-    const token = await getToken(
-      messaging,
-      {
-        vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
-      }
-    );
-
-    if (token) {
-      console.log("FCM Token:", token);
-    } else {
-      console.log("No registration token available");
-    }
-
-  } catch (err) {
-    console.error("FCM Error:", err);
-  }
-}
 
 window.getFCMToken = getFCMToken; 
   window.auth = auth;
