@@ -373,6 +373,9 @@
 <header>RK FASHIONS</header>
 <button id="logoutBtn" onclick="logout()">🚪 Logout</button>
 <button id="orderBtn" onclick="showOrderHistory()">📜 Order History</button>
+<button id="installBtn" style="display:none">
+📲 Install RK FASHIONS
+</button>
 <div id="loadingPage" style="
   display:flex;
   flex-direction:column;
@@ -1554,6 +1557,28 @@ async function loadCartFromFirestore() {
     );
   }
 }
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  document.getElementById("installBtn").style.display = "block";
+});
+
+document.getElementById("installBtn")
+.addEventListener("click", async () => {
+
+  if (!deferredPrompt) return;
+
+  deferredPrompt.prompt();
+
+  const result = await deferredPrompt.userChoice;
+
+  console.log(result.outcome);
+
+  deferredPrompt = null;
+});
 </script>
 <script type="module">
 import { getMessaging, getToken }
@@ -1646,6 +1671,15 @@ window.getDoc = getDoc;
 window.deleteDoc = deleteDoc;
 window.doc = doc;
 window.deleteUser = deleteUser;
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then(() => console.log("Service Worker Registered"));
+  });
+}
 </script>
 </body>
 </html>
