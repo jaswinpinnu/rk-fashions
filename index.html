@@ -1345,7 +1345,12 @@ window.onload = async function(){
 
   }
 
-  showSavedAddress();
+ const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if(currentUser){
+    await showSavedAddress();
+  }
   showLoadingThenLogin();
 };
 function sendCancelNotification(order){
