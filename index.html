@@ -1258,19 +1258,18 @@ function showPage(id){
   const logoutBtn = document.getElementById("logoutBtn");
   const orderBtn = document.getElementById("orderBtn");
 
-  if(id === "loginPage"){
-    logoutBtn.style.display = "none";
-    orderBtn.style.display = "none";
-  }
-  else if(id === "registerPage"){
-    logoutBtn.style.display = "block";
-    orderBtn.style.display = "none"; // Hide only Order History
-  }
-  else{
-    logoutBtn.style.display = "block";
-    orderBtn.style.display = "block";
-  }
-
+  if(
+  id === "loginPage" ||
+  id === "registerPage" ||
+  id === "forgotPage"
+){
+  logoutBtn.style.display = "none";
+  orderBtn.style.display = "none";
+}
+else{
+  logoutBtn.style.display = "block";
+  orderBtn.style.display = "block";
+}
   if(id === "addressPage"){
     loadSavedAddress();
   }
