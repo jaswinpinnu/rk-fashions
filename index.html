@@ -1591,11 +1591,8 @@ window.provider = provider;
 window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
 const messaging = getMessaging(app);
-
 async function getFCMToken() {
-
   try {
-
     const token = await getToken(
       messaging,
       {
@@ -1603,17 +1600,18 @@ async function getFCMToken() {
       }
     );
 
-    if(token){
+    if (token) {
       console.log("FCM Token:", token);
     } else {
       console.log("No registration token available");
     }
 
-  } catch(err){
+  } catch (err) {
     console.error("FCM Error:", err);
   }
-
 }
+
+window.getFCMToken = getFCMToken; 
   window.auth = auth;
 window.db = db;
 
