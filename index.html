@@ -1344,15 +1344,10 @@ window.onload = async function(){
     }
 
   }
-
- const currentUser =
-    JSON.parse(localStorage.getItem("currentUser"));
-
-  if(currentUser){
-    await showSavedAddress();
-  }
+ showSavedAddress();
   showLoadingThenLogin();
 };
+  
 function sendCancelNotification(order){
   const phone = "919704974080"; // your WhatsApp number
 
