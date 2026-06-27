@@ -1553,10 +1553,6 @@ async function loadCartFromFirestore() {
   }
 }
 </script>
-<script type="module">
-import { getMessaging, getToken }
-from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
-</script>
  
 <script type="module">
 
@@ -1569,7 +1565,8 @@ from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
   GoogleAuthProvider,
   signOut,
   deleteUser,
-  sendPasswordResetEmail,
+  sendPasswordResetEmail,
+
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
@@ -1582,10 +1579,11 @@ from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
   doc,
   setDoc,
   getDoc,
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+import {
   getMessaging,
   getToken
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
     authDomain: "rkfashions-cf673.firebaseapp.com",
