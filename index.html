@@ -1514,11 +1514,21 @@ async function getFCMToken() {
     );
 
     if (token) {
-      console.log("FCM Token:", token);
-    } else {
-      console.log("No registration token available");
-    }
+  console.log("FCM Token:", token);
 
+  await setDoc(
+    doc(db, "users", auth.currentUser.uid),
+    {
+      token: token
+    },
+    { merge: true }
+  );
+
+  console.log("Token saved to Firestore ✅");
+
+} else {
+  console.log("No registration token available");
+}
   } catch (err) {
     console.error("FCM Error:", err);
   }
