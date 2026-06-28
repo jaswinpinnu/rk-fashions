@@ -1562,15 +1562,22 @@ async function loadCartFromFirestore() {
 }
 async function getFCMToken() {
   try {
-    const token = await getToken(
-      messaging,
-      {
-        vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
-      }
-    );
+    const token = await getToken(messaging, {
+      vapidKey: "YOUR_VAPID_KEY"
+    });
 
     if (token) {
       console.log("FCM Token:", token);
+
+      // Save token to Firestore
+      await setDoc(
+        doc(db, "users", auth.currentUser.uid),
+        {
+          token: token
+        },
+        { merge: true }
+      );
+
     } else {
       console.log("No registration token available");
     }
@@ -1609,7 +1616,8 @@ async function getFCMToken() {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import {
   getMessaging,
-  getToken
+  getToken,
+  onMessage
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
@@ -1624,6 +1632,15 @@ import {
 
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
+
+onMessage(messaging, (payload) => {
+  console.log(payload);
+
+  new Notification(payload.notification.title, {
+    body: payload.notification.body,
+    icon: "/icon-192.png"
+  });
+});
 
 window.provider = provider;
 window.signInWithPopup = signInWithPopup;
