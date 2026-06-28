@@ -1600,7 +1600,8 @@ async function loadCartFromFirestore() {
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import {
   getMessaging,
-  getToken
+  getToken,
+  onMessage 
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
@@ -1620,6 +1621,14 @@ window.provider = provider;
 window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
 const messaging = getMessaging(app);
+onMessage(messaging, (payload) => {
+  console.log(payload);
+
+  new Notification(payload.notification.title, {
+    body: payload.notification.body,
+    icon: "/icon-192.png"
+  });
+});
 
 window.getFCMToken = getFCMToken; 
   window.auth = auth;
