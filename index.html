@@ -1506,31 +1506,32 @@ async function googleRegister() {
 }
 async function getFCMToken() {
   try {
-    const token = await getToken(
-      messaging,
-      {
-        vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
-      }
-    );
+    if (!auth.currentUser) {
+      console.log("No logged in user");
+      return;
+    }
+
+    const token = await getToken(messaging, {
+      vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
+    });
 
     if (token) {
-  console.log("FCM Token:", token);
+      console.log("FCM Token:", token);
 
-  await setDoc(
-    doc(db, "users", auth.currentUser.uid),
-    {
-      token: token
-    },
-    { merge: true }
-  );
+      await setDoc(
+        doc(db, "users", auth.currentUser.uid),
+        {
+          email: auth.currentUser.email,
+          token: token
+        },
+        { merge: true }
+      );
 
-  console.log("Token saved to Firestore ✅");
+      console.log("Token saved successfully");
+    }
 
-} else {
-  console.log("No registration token available");
-}
   } catch (err) {
-    console.error("FCM Error:", err);
+    console.error(err);
   }
 }
 async function saveCartToFirestore() {
