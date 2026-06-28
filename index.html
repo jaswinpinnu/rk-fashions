@@ -1652,11 +1652,12 @@ window.deleteUser = deleteUser;
 </script>
 <script>
 if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/rkfashions/firebase-messaging-sw.js");
-      .then(() => console.log("Service Worker Registered"));
+  window.addEventListener("load", async () => {
+    await navigator.serviceWorker.register("/rkfashions/sw.js");
+    console.log("Service Worker Registered");
   });
 }
+      
 </script>
 </body>
 </html>
