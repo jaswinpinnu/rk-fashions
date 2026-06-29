@@ -1534,7 +1534,7 @@ async function googleRegister() {
       console.log("No logged in user");
       return;
     }
-
+    console.log("Notification Permission:", Notification.permission);
     const token = await getToken(messaging, {
        vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
     });
