@@ -1526,20 +1526,22 @@ async function googleRegister() {
     alert(error.message);
   }
 }
-async function getFCMToken() {
+  async function getFCMToken() {
   try {
+    console.log("getFCMToken called");
+
     if (!auth.currentUser) {
       console.log("No logged in user");
       return;
     }
 
     const token = await getToken(messaging, {
-      vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
+       vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU"
     });
 
-    if (token) {
-      console.log("FCM Token:", token);
+    console.log("Token:", token);
 
+    if (token) {
       await setDoc(
         doc(db, "users", auth.currentUser.uid),
         {
@@ -1549,11 +1551,15 @@ async function getFCMToken() {
         { merge: true }
       );
 
-      console.log("Token saved successfully");
+      console.log("Token saved");
+      alert("Token saved");
+    } else {
+      alert("No token received");
     }
 
   } catch (err) {
     console.error(err);
+    alert(err.message);
   }
 }
 async function saveCartToFirestore() {
