@@ -240,12 +240,6 @@
   }
 
 
-  width: auto !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  display: inline-block !important;
-
   button{
     width:90%;
     max-width:350px;
@@ -1535,9 +1529,6 @@ async function googleRegister() {
       return;
     }
     console.log("Notification Permission:", Notification.permission);
-    const registration = await navigator.serviceWorker.register(
-  "/rk-fashions/firebase-messaging-sw.js"
-);
   const token = await getToken(messaging, {
   vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU",
   serviceWorkerRegistration: registration
@@ -1654,6 +1645,11 @@ window.provider = provider;
 window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
 const messaging = getMessaging(app);
+const registration = await navigator.serviceWorker.register(
+  "/rk-fashions/firebase-messaging-sw.js"
+);
+
+window.registration = registration;
   window.messaging = messaging;
 window.getToken = getToken;
 onMessage(messaging, (payload) => {
@@ -1683,15 +1679,6 @@ window.getDoc = getDoc;
 window.deleteDoc = deleteDoc;
 window.doc = doc;
 window.deleteUser = deleteUser;
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", async () => {
-    await navigator.serviceWorker.register("/rk-fashions/firebase-messaging-sw.js");
-   console.log("Service Worker Registered Successfully");
-  });
-}
-      
 </script>
 </body>
 </html>
