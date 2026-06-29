@@ -427,6 +427,7 @@
   <input id="password" type="password" placeholder="Password">
   <button onclick="togglePassword('password', this)">👁️</button>
 </div>
+<button onclick="showOTPLogin()">Login with OTP</button>
 <p style="color:black; cursor:pointer;" onclick="showForgotPage()">
   Forgot Password?
 </p>
@@ -443,6 +444,21 @@
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
   <h2>Order History</h2>
   <div id="orderHistoryList"></div>
+</div>
+<div id="otpPage" class="container hidden">
+  <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
+
+  <h2>Login with OTP</h2>
+
+  <input id="phoneNumber" placeholder="+919876543210">
+
+  <div id="recaptcha-container"></div>
+
+  <button onclick="sendOTP()">Send OTP</button>
+
+  <input id="otpCode" placeholder="Enter OTP">
+
+  <button onclick="verifyOTP()">Verify OTP</button>
 </div>
 <!-- REGISTER -->
 <div id="registerPage" class="container hidden">
@@ -1571,6 +1587,66 @@ async function loadCartFromFirestore() {
     );
   }
 }
+async function sendOTP() {
+
+  const phone =
+    document.getElementById("phoneNumber").value;
+
+  try {
+
+    const confirmation =
+      await signInWithPhoneNumber(
+        auth,
+        phone,
+        window.recaptchaVerifier
+      );
+
+    window.confirmationResult = confirmation;
+
+    alert("OTP Sent ✅");
+
+  } catch(err){
+
+    alert(err.message);
+
+  }
+}
+async function verifyOTP(){
+
+  const code =
+    document.getElementById("otpCode").value;
+
+  try{
+
+    const result =
+      await window.confirmationResult.confirm(code);
+
+    const user = result.user;
+
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify({
+        uid:user.uid,
+        phone:user.phoneNumber
+      })
+    );
+
+    await getFCMToken();
+    await showSavedAddress();
+
+    alert("Login Successful ✅");
+
+    showPage("categoryPage");
+
+  }catch(err){
+
+    alert("Invalid OTP ❌");
+
+  }
+}
+function showOTPLogin(){
+  showPage("otpPage");
+}
 </script>
  
 <script type="module">
@@ -1604,6 +1680,11 @@ import {
   getToken,
   onMessage 
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
+import {
+  getAuth,
+  signInWithPhoneNumber,
+  RecaptchaVerifier
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
     authDomain: "rkfashions-cf673.firebaseapp.com",
@@ -1615,8 +1696,19 @@ import {
 
   const app = initializeApp(firebaseConfig);
 
-  const auth = getAuth(app);
-  const provider = new GoogleAuthProvider();
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
+window.auth = auth;
+
+// Initialize reCAPTCHA
+window.recaptchaVerifier = new RecaptchaVerifier(
+  auth,
+  "recaptcha-container",
+  {
+    size: "normal"
+  }
+);
 
 window.provider = provider;
 window.signInWithPopup = signInWithPopup;
@@ -1634,7 +1726,8 @@ onMessage(messaging, (payload) => {
 window.getFCMToken = getFCMToken; 
   window.auth = auth;
 window.db = db;
-
+window.signInWithPhoneNumber = signInWithPhoneNumber;
+window.RecaptchaVerifier = RecaptchaVerifier;
 window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 window.signInWithEmailAndPassword = signInWithEmailAndPassword;
 window.signOut = signOut;
