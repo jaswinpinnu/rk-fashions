@@ -427,9 +427,6 @@
   <input id="password" type="password" placeholder="Password">
   <button onclick="togglePassword('password', this)">👁️</button>
 </div>
-<button onclick="showPhoneLogin()">
-📱 Login with Phone
-</button>
 <p style="color:black; cursor:pointer;" onclick="showForgotPage()">
   Forgot Password?
 </p>
@@ -447,7 +444,6 @@
   <h2>Order History</h2>
   <div id="orderHistoryList"></div>
 </div>
-
 <!-- REGISTER -->
 <div id="registerPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
@@ -460,32 +456,7 @@
       oninput="checkStrength(this.value)">
     <button onclick="togglePassword('newPass', this)">👁️</button>
   </div>
-<div id="phoneLoginPage" class="container hidden">
 
-  <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
-
-  <h2>Login with Phone</h2>
-
-  <input
-    id="phoneNumber"
-    type="tel"
-    placeholder="+91XXXXXXXXXX">
-
-  <div id="recaptcha-container"></div>
-
-  <button onclick="sendOTP()">
-    Send OTP
-  </button>
-
-  <input
-    id="otpCode"
-    placeholder="Enter OTP">
-
-  <button onclick="verifyOTP()">
-    Verify OTP
-  </button>
-
-</div>
   <!-- Password Strength -->
   <div id="strengthBar"></div>
   <p id="strengthText"></p>
@@ -756,42 +727,6 @@ function startLoadingAnimation(){
     text.innerText = progress + "%";
 
   }, 50); 
-}
-let confirmationResult;
-
-async function verifyOTP() {
-
-  const code = document.getElementById("otpCode").value;
-
-  try {
-
-    const result = await confirmationResult.confirm(code);
-
-    const user = result.user;
-
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify({
-        uid: user.uid,
-        phone: user.phoneNumber
-      })
-    );
-
-    alert("Phone Login Success ✅");
-
-    await getFCMToken();
-    await showSavedAddress();
-
-    // Go to Category Page
-    showPage("categoryPage");
-
-  } catch (err) {
-    console.error(err);
-    alert("Invalid OTP ❌");
-  }
-}
-function showPhoneLogin() {
-  showPage("phoneLoginPage");
 }
 async function login() {
 
