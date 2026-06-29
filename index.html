@@ -1650,6 +1650,8 @@ window.provider = provider;
 window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
 const messaging = getMessaging(app);
+  window.messaging = messaging;
+window.getToken = getToken;
 onMessage(messaging, (payload) => {
   console.log(payload);
 
