@@ -924,11 +924,24 @@ async function register() {
 
   try {
 
-    await createUserWithEmailAndPassword(
+    // Create account
+    const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       newPass.value
     );
+
+    // Save current user
+    localStorage.setItem(
+      "currentUser",
+      JSON.stringify({
+        email: userCredential.user.email,
+        uid: userCredential.user.uid
+      })
+    );
+
+    // Get and save FCM token
+    await getFCMToken();
 
     alert("Account Created ✅");
     showPage("loginPage");
@@ -1472,7 +1485,6 @@ async function saveOrder(order) {
 
   console.log("Order Saved ✅");
 }
-
 async function googleRegister() {
   try {
 
@@ -1501,6 +1513,9 @@ async function googleRegister() {
         uid: user.uid
       })
     );
+
+    // ✅ Get and save FCM token
+    await getFCMToken();
 
     alert("Google Sign In Success ✅");
 
