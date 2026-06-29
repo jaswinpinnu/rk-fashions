@@ -1656,6 +1656,7 @@ function showOTPLogin(){
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPhoneNumber,
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
@@ -1680,11 +1681,7 @@ import {
   getToken,
   onMessage 
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
-import {
-  getAuth,
-  signInWithPhoneNumber,
-  RecaptchaVerifier
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
     authDomain: "rkfashions-cf673.firebaseapp.com",
@@ -1726,10 +1723,11 @@ onMessage(messaging, (payload) => {
 window.getFCMToken = getFCMToken; 
   window.auth = auth;
 window.db = db;
-window.signInWithPhoneNumber = signInWithPhoneNumber;
-window.RecaptchaVerifier = RecaptchaVerifier;
+
 window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+window.signInWithPhoneNumber = signInWithPhoneNumber;
+window.RecaptchaVerifier = RecaptchaVerifier;
 window.signOut = signOut;
 window.sendPasswordResetEmail = sendPasswordResetEmail;
 window.collection = collection;
