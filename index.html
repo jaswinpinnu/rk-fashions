@@ -427,28 +427,6 @@
   <input id="password" type="password" placeholder="Password">
   <button onclick="togglePassword('password', this)">👁️</button>
 </div>
-<hr>
-
-<h3>Login with Phone</h3>
-
-<input
-id="phoneNumber"
-type="tel"
-placeholder="+91XXXXXXXXXX">
-
-<div id="recaptcha-container"></div>
-
-<button onclick="sendOTP()">
-Send OTP
-</button>
-
-<input
-id="otpCode"
-placeholder="Enter OTP">
-
-<button onclick="verifyOTP()">
-Verify OTP
-</button>
 <p style="color:black; cursor:pointer;" onclick="showForgotPage()">
   Forgot Password?
 </p>
@@ -784,58 +762,7 @@ showPage("categoryPage");
     alert(error.message);
   }
 }
-let confirmationResult;
 
-async function sendOTP() {
-
-  const phone =
-  document.getElementById("phoneNumber").value;
-
-  try{
-
-    confirmationResult =
-      await signInWithPhoneNumber(
-        auth,
-        phone,
-        recaptchaVerifier
-      );
-
-    alert("OTP Sent ✅");
-
-  }catch(err){
-    alert(err.message);
-  }
-
-}
-async function verifyOTP(){
-
-  const code =
-  document.getElementById("otpCode").value;
-
-  try{
-
-    const result =
-      await confirmationResult.confirm(code);
-
-    const user = result.user;
-
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify({
-        uid:user.uid,
-        phone:user.phoneNumber
-      })
-    );
-
-    alert("Phone Login Successful ✅");
-
-    showPage("categoryPage");
-
-  }catch(err){
-    alert("Invalid OTP ❌");
-  }
-
-}
 function logout(){
   alert("Logged out 🚪");
 
@@ -1658,8 +1585,7 @@ async function loadCartFromFirestore() {
   signOut,
   deleteUser,
   sendPasswordResetEmail,
-  RecaptchaVerifier,
-  signInWithPhoneNumber
+
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
  import {
   getFirestore,
@@ -1691,12 +1617,6 @@ import {
 
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
-window.recaptchaVerifier = new RecaptchaVerifier(
-auth,
-"recaptcha-container",
-{
-  size: "normal"
-});
 
 window.provider = provider;
 window.signInWithPopup = signInWithPopup;
