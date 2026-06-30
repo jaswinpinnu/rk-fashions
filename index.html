@@ -1352,22 +1352,24 @@ window.onload = async function(){
   showLoadingThenLogin();
 };
 function sendCancelNotification(order) {
-  const phone = "919704974080";
+    const phone = "919704974080";
 
-  const itemsText = order.items
-    .map(i => `• ${i.name} - ₹${i.price}`)
-    .join("\n");
+    const itemsText = order.items
+        .map(i => `• ${i.name} - ₹${i.price}`)
+        .join("\n");
 
-  const message =
-    `❌ *ORDER CANCELLED*\n\n` +
-    `📦 Products:\n${itemsText}\n\n` +
-    `💰 Total: ₹${order.total}\n` +
-    `📅 ${order.date}\n\n` +
-    `⚠️ Customer cancelled this order.`;
+    const message =
+        `❌ ORDER CANCELLED\n\n` +
+        `📦 Products:\n${itemsText}\n\n` +
+        `💰 Total: ₹${order.total}\n` +
+        `📅 ${order.date}\n\n` +
+        `⚠️ Customer cancelled this order.`;
 
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-  window.open(url, "_blank");
+    console.log(url); // Check generated URL
+
+    window.open(url, "_blank");
 }
 
 async function deleteAccount() {
