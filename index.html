@@ -1339,40 +1339,23 @@ window.open(url, "_blank");
 window.onload = async function () {
 
   if ("Notification" in window) {
+
     const permission = await Notification.requestPermission();
 
     if (permission === "granted") {
-      console.log("Notification permission granted");
-    }
-  }
 
-  // Detect installed app
-  const isInstalled =
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true;
+      await getFCMToken();
 
-  if (isInstalled && !localStorage.getItem("installNotified")) {
+      if (!localStorage.getItem("welcomeNotification")) {
 
-    localStorage.setItem("installNotified", "true");
+        localStorage.setItem("welcomeNotification", "true");
 
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        new Notification("🎉 RK FASHIONS", {
+          body: "Thank you for visiting RK FASHIONS!",
+          icon: "/icon-192.png"
+        });
 
-    if (currentUser) {
-      await setDoc(
-        doc(db, "users", currentUser.uid),
-        {
-          appInstalled: true,
-          installedAt: new Date().toISOString()
-        },
-        { merge: true }
-      );
-    }
-
-    if (Notification.permission === "granted") {
-      new Notification("🎉 RK FASHIONS", {
-        body: "Thank you for installing RK FASHIONS!",
-        icon: "/icon-192.png"
-      });
+      }
     }
   }
 
