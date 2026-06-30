@@ -1315,7 +1315,7 @@ async function sendWhatsAppNotification(order) {
   const url =
     `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-  window.open(url, "_blank");
+ window.location.href = url;
 }
 function sendScreenshot() {
   const fileInput = document.getElementById("paymentProof");
@@ -1332,7 +1332,7 @@ function sendScreenshot() {
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   // Open WhatsApp chat
-  window.open(url, "_blank");
+  window.location.href = url;
 
   alert("Now attach the screenshot manually in WhatsApp 📤");
 }
