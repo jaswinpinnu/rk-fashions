@@ -1351,27 +1351,56 @@ window.onload = async function(){
 
   showLoadingThenLogin();
 };
-function sendCancelNotification(order) {
+async function cancelOrder(orderId) {
+  try {
+    const confirmed = confirm("Are you sure you want to cancel this order?");
+    if (!confirmed) return;
+
+    const orderRef = doc(db, "orders", orderId);
+    const orderSnap = await getDoc(orderRef);
+
+    if (!orderSnap.exists()) {
+      alert("Order not found ❌");
+      return;
+    }
+
+    const order = orderSnap.data();
+
     const phone = "919704974080";
 
     const itemsText = order.items
-        .map(i => `• ${i.name} - ₹${i.price}`)
-        .join("\n");
+      .map(i => `• ${i.name} - ₹${i.price}`)
+      .join("\n");
 
     const message =
-        `❌ ORDER CANCELLED\n\n` +
-        `📦 Products:\n${itemsText}\n\n` +
-        `💰 Total: ₹${order.total}\n` +
-        `📅 ${order.date}\n\n` +
-        `⚠️ Customer cancelled this order.`;
+      `❌ ORDER CANCELLED\n\n` +
+      `📦 Products:\n${itemsText}\n\n` +
+      `💰 Total: ₹${order.total}\n` +
+      `📅 ${order.date}\n\n` +
+      `⚠️ Customer cancelled this order.`;
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-    console.log(url); // Check generated URL
+    // Open WhatsApp immediately
+    window.location.href = url;
 
-    window.open(url, "_blank");
+    // Delete the order after a short delay
+    setTimeout(async () => {
+      try {
+        await deleteDoc(orderRef);
+        alert("✅ Order Cancelled Successfully");
+        showOrderHistory();
+      } catch (err) {
+        console.error(err);
+        alert("Order cancellation failed ❌");
+      }
+    }, 2000);
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to cancel order ❌");
+  }
 }
-
 async function deleteAccount() {
 
   const user = auth.currentUser;
