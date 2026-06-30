@@ -1336,17 +1336,44 @@ window.open(url, "_blank");
 
   alert("Now attach the screenshot manually in WhatsApp 📤");
 }
-window.onload = async function(){
+window.onload = async function () {
 
   if ("Notification" in window) {
+    const permission = await Notification.requestPermission();
 
-    const permission =
-      await Notification.requestPermission();
-
-    if(permission === "granted"){
+    if (permission === "granted") {
       console.log("Notification permission granted");
     }
+  }
 
+  // Detect installed app
+  const isInstalled =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  if (isInstalled && !localStorage.getItem("installNotified")) {
+
+    localStorage.setItem("installNotified", "true");
+
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (currentUser) {
+      await setDoc(
+        doc(db, "users", currentUser.uid),
+        {
+          appInstalled: true,
+          installedAt: new Date().toISOString()
+        },
+        { merge: true }
+      );
+    }
+
+    if (Notification.permission === "granted") {
+      new Notification("🎉 RK FASHIONS", {
+        body: "Thank you for installing RK FASHIONS!",
+        icon: "/icon-192.png"
+      });
+    }
   }
 
   showLoadingThenLogin();
