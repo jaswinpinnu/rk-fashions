@@ -1367,7 +1367,7 @@ function sendCancelNotification(order) {
 
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-  location.href = url;
+  window.open(url, "_blank");
 }
 
 async function deleteAccount() {
