@@ -1315,7 +1315,7 @@ async function sendWhatsAppNotification(order) {
   const url =
     `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
- window.location.href = url;
+window.open(url, "_blank");
 }
 function sendScreenshot() {
   const fileInput = document.getElementById("paymentProof");
@@ -1332,7 +1332,7 @@ function sendScreenshot() {
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
   // Open WhatsApp chat
-  window.location.href = url;
+window.open(url, "_blank");
 
   alert("Now attach the screenshot manually in WhatsApp 📤");
 }
@@ -1351,32 +1351,23 @@ window.onload = async function(){
 
   showLoadingThenLogin();
 };
-async function cancelOrder(orderId) {
-  try {
-    const confirmed = confirm("Are you sure you want to cancel this order?");
-    if (!confirmed) return;
+function sendCancelNotification(order) {
+  const phone = "919704974080";
 
-    // Get order details
-    const orderDoc = await getDoc(doc(db, "orders", orderId));
+  const itemsText = order.items
+    .map(i => `• ${i.name} - ₹${i.price}`)
+    .join("\n");
 
-    if (orderDoc.exists()) {
-      const order = orderDoc.data();
+  const message =
+    `❌ *ORDER CANCELLED*\n\n` +
+    `📦 Products:\n${itemsText}\n\n` +
+    `💰 Total: ₹${order.total}\n` +
+    `📅 ${order.date}\n\n` +
+    `⚠️ Customer cancelled this order.`;
 
-      // Open WhatsApp
-      sendCancelNotification(order);
-    }
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-    // Delete order
-    await deleteDoc(doc(db, "orders", orderId));
-
-    alert("✅ Order Cancelled Successfully");
-
-    showOrderHistory();
-
-  } catch (err) {
-    console.error(err);
-    alert("Failed to cancel order ❌");
-  }
+  location.href = url;
 }
 
 async function deleteAccount() {
