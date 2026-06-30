@@ -1351,23 +1351,32 @@ window.onload = async function(){
 
   showLoadingThenLogin();
 };
-function sendCancelNotification(order){
-  const phone = "919704974080"; // your WhatsApp number
+async function cancelOrder(orderId) {
+  try {
+    const confirmed = confirm("Are you sure you want to cancel this order?");
+    if (!confirmed) return;
 
-  const itemsText = order.items
-    .map(i => `• ${i.name} - ₹${i.price}`)
-    .join("\n");
+    // Get order details
+    const orderDoc = await getDoc(doc(db, "orders", orderId));
 
-  const message =
-    `❌ *ORDER CANCELLED*\n\n` +
-    `📦 Products:\n${itemsText}\n\n` +
-    `💰 Total: ₹${order.total}\n` +
-    `📅 ${order.date}\n\n` +
-    `⚠️ Customer cancelled this order.`;
+    if (orderDoc.exists()) {
+      const order = orderDoc.data();
 
-  const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+      // Open WhatsApp
+      sendCancelNotification(order);
+    }
 
-  window.open(url, "_blank");
+    // Delete order
+    await deleteDoc(doc(db, "orders", orderId));
+
+    alert("✅ Order Cancelled Successfully");
+
+    showOrderHistory();
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to cancel order ❌");
+  }
 }
 
 async function deleteAccount() {
