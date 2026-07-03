@@ -370,7 +370,20 @@
     padding:6px 10px;
   }
 }
+.container{
+    opacity:0;
+    transform:translateY(20px);
+    transition:opacity .4s ease, transform .4s ease;
+}
 
+.container:not(.hidden){
+    opacity:1;
+    transform:translateY(0);
+}
+
+.hidden{
+    display:none;
+}
 </style>
 </head>
 
@@ -1269,30 +1282,29 @@ function continueShopping(){
 // NAV
 function goBack(page){ showPage(page); }
 function showPage(id){
-  document.querySelectorAll(".container").forEach(p =>
-    p.classList.add("hidden")
-  );
 
-  document.getElementById(id).classList.remove("hidden");
+    document.querySelectorAll(".container").forEach(page=>{
+        page.classList.add("hidden");
+    });
 
-  const logoutBtn = document.getElementById("logoutBtn");
-  const orderBtn = document.getElementById("orderBtn");
+    setTimeout(()=>{
+        document.getElementById(id).classList.remove("hidden");
+    },100);
 
-  if(
-  id === "loginPage" ||
-  id === "registerPage" ||
-  id === "forgotPage"
-){
-  logoutBtn.style.display = "none";
-  orderBtn.style.display = "none";
-}
-else{
-  logoutBtn.style.display = "block";
-  orderBtn.style.display = "block";
-}
-  if(id === "addressPage"){
-    loadSavedAddress();
-  }
+    const logoutBtn=document.getElementById("logoutBtn");
+    const orderBtn=document.getElementById("orderBtn");
+
+    if(id==="loginPage" || id==="registerPage" || id==="forgotPage"){
+        logoutBtn.style.display="none";
+        orderBtn.style.display="none";
+    }else{
+        logoutBtn.style.display="block";
+        orderBtn.style.display="block";
+    }
+
+    if(id==="addressPage"){
+        loadSavedAddress();
+    }
 }
 async function sendWhatsAppNotification(order) {
 
