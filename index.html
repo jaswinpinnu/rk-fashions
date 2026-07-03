@@ -711,11 +711,10 @@ let data = JSON.parse(localStorage.getItem("products")) || [
   image:"emerald green.jpg"
 },
 ];
-function showLoadingThenLogin(){
+function showLoadingThenLogin() {
   const loading = document.getElementById("loadingPage");
   loading.style.display = "flex";
-
-  startLoadingAnimation(); // ✅ THIS IS IMPORTANT
+  startLoadingAnimation();
 }
 function showForgotPage() {
   showPage("forgotPage");
@@ -736,7 +735,13 @@ function startLoadingAnimation(){
 
       setTimeout(() => {
         document.getElementById("loadingPage").style.display = "none";
-        showPage("loginPage");
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+if (currentUser) {
+  showPage("categoryPage");
+} else {
+  showPage("loginPage");
+}
       }, 300);
     }
 
@@ -1355,27 +1360,34 @@ window.open(url, "_blank");
 window.onload = async function () {
 
   if ("Notification" in window) {
-
     const permission = await Notification.requestPermission();
 
     if (permission === "granted") {
-
       await getFCMToken();
 
       if (!localStorage.getItem("welcomeNotification")) {
-
         localStorage.setItem("welcomeNotification", "true");
 
         new Notification("🎉 RK FASHIONS", {
           body: "Thank you for visiting RK FASHIONS!",
           icon: "/icon-192.png"
         });
-
       }
     }
   }
 
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
   showLoadingThenLogin();
+
+  if (currentUser) {
+    await loadCartFromFirestore();
+    await showSavedAddress();
+
+    setTimeout(() => {
+      showPage("categoryPage");
+    }, 5500); // Same time as loading animation
+  }
 };
 async function cancelOrder(orderId) {
   try {
