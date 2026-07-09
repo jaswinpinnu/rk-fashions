@@ -773,7 +773,14 @@ await getFCMToken();
 
 await showSavedAddress();
 
-showPage("categoryPage");
+const redirect = localStorage.getItem("redirectAfterLogin");
+
+if (redirect) {
+  localStorage.removeItem("redirectAfterLogin");
+  showPage(redirect);
+} else {
+  showPage("categoryPage");
+}
   } catch (error) {
     console.error(error);
     alert(error.message);
@@ -1053,9 +1060,22 @@ async function removeItem(index){
 }
 
 // CHECKOUT → PAYMENT
-function checkout(){
-  if(cart.length === 0){
+function checkout() {
+  if (cart.length === 0) {
     alert("Cart is empty 🛒");
+    return;
+  }
+
+  // Check if user is logged in
+  const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    alert("Please login before checkout.");
+
+    // Save the page to return to after login
+    localStorage.setItem("redirectAfterLogin", "addressPage");
+
+    showPage("loginPage");
     return;
   }
 
