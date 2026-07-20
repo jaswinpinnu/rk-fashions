@@ -730,7 +730,7 @@ let data = JSON.parse(localStorage.getItem("products")) || [
   price: 699,
   category: "Women",
   size: "L",
-  image: "golg.jpeg"
+  image: "gold.jpeg"
 },
 {
   name: "light pink 3 piece set",
@@ -941,30 +941,7 @@ console.log("Orders Found:", snapshot.size);
   }
   
 }
-async function cancelOrder(orderId) {
 
-  try {
-
-    const confirmed =
-      confirm("Are you sure you want to cancel this order?");
-
-    if (!confirmed) return;
-
-    await deleteDoc(
-      doc(db, "orders", orderId)
-    );
-
-    alert("✅ Order Cancelled Successfully");
-
-    showOrderHistory();
-
-  } catch (err) {
-
-    console.error(err);
-
-    alert("Failed to cancel order ❌");
-  }
-}
 // REGISTER
 async function register() {
 
