@@ -531,7 +531,15 @@
 <div id="productPage" class="container hidden">
   <button class="back-btn" onclick="goBack('categoryPage')">⬅</button>
   <h2>Products</h2>
-  <div class="products" id="products"></div>
+
+<input
+  type="text"
+  id="searchBox"
+  placeholder="🔍 Search products..."
+  onkeyup="searchProducts()"
+>
+
+<div class="products" id="products"></div>
   <button onclick="showCart()">Go to Cart</button>
 </div>
 <!-- CART -->
@@ -1196,6 +1204,41 @@ async function loadSavedAddress() {
     city.value = addr.city || "";
     state.value = addr.state || "";
     address.value = addr.address || "";
+  }
+}
+document.getElementById("searchBox").value = "";
+function searchProducts() {
+
+  const keyword = document
+    .getElementById("searchBox")
+    .value
+    .toLowerCase();
+
+  const filtered = data.filter(p =>
+    p.category === selectedCategory &&
+    (
+      p.name.toLowerCase().includes(keyword) ||
+      String(p.price).includes(keyword) ||
+      (p.size && p.size.toLowerCase().includes(keyword))
+    )
+  );
+
+  document.getElementById("products").innerHTML =
+    filtered.map(p => `
+      <div class="card">
+        <img src="${p.image}">
+        <h4>${p.name}</h4>
+        <p>₹${p.price}</p>
+        <p><b>Size:</b> ${p.size || "Free Size"}</p>
+        <button onclick='addToCart(${JSON.stringify(p)})'>
+          Add to Cart
+        </button>
+      </div>
+    `).join("");
+
+  if (filtered.length === 0) {
+    document.getElementById("products").innerHTML =
+      "<h3>No products found 😔</h3>";
   }
 }
 async function saveAddress() {
