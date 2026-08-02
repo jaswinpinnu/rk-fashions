@@ -620,7 +620,6 @@
 <script>
 let selectedCategory = "";
 let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-
 // PRODUCTS
 let data = JSON.parse(localStorage.getItem("products")) || [
   {
@@ -807,6 +806,18 @@ let data = JSON.parse(localStorage.getItem("products")) || [
   image: "Mustard.png"
 },
 ];
+  // ==========================
+// STOCK SYSTEM
+// ==========================
+
+// Give every product a unique ID + default stock of 1
+data = data.map((product, index) => ({
+  ...product,
+  id: product.id || `product_${index}`,
+  stock: product.stock ?? 1
+}));
+
+localStorage.setItem("products", JSON.stringify(data));
 function showLoadingThenLogin(){
   const loading = document.getElementById("loadingPage");
   loading.style.display = "flex";
@@ -1040,14 +1051,13 @@ function selectCategory(cat){
   loadProducts();
   showPage("productPage");
 }
-function loadProducts(){
+function loadProducts() {
 
   const filtered =
     data.filter(p => p.category === selectedCategory);
 
   document.getElementById("products").innerHTML =
-
-    filtered.map((p,index) => `
+    filtered.map((p) => `
 
       <div class="card">
 
@@ -1059,22 +1069,62 @@ function loadProducts(){
 
         ${
           p.size
-          ? `<p><b>Size:</b> ${p.size}</p>`
-          : `<p><b>Free Size</b></p>`
+            ? `<p><b>Size:</b> ${p.size}</p>`
+            : `<p><b>Free Size</b></p>`
         }
 
-        <button onclick='addToCart(${JSON.stringify(p)})'>
-          Add to Cart
-        </button>
+        ${
+          p.stock > 0
+            ? `
+              <p style="color:green;font-weight:bold;">
+                Stock: ${p.stock} ✅
+              </p>
+
+              <button onclick="addToCartById('${p.id}')">
+                Add to Cart
+              </button>
+            `
+            : `
+              <p style="color:red;font-weight:bold;">
+                Out of Stock ❌
+              </p>
+
+              <button disabled
+                style="background:gray;cursor:not-allowed;">
+                Out of Stock
+              </button>
+            `
+        }
 
       </div>
 
     `).join("");
 }
 // CART
-async function addToCart(p){
+async function addToCartById(productId) {
 
-  cart.push(p);
+  const p = data.find(product => product.id === productId);
+
+  if (!p) {
+    alert("Product not found ❌");
+    return;
+  }
+
+  if (p.stock <= 0) {
+    alert("Out of Stock ❌");
+    return;
+  }
+
+  // Don't allow same product twice
+  const alreadyInCart =
+    cart.some(item => item.id === p.id);
+
+  if (alreadyInCart) {
+    alert("Only 1 item available in stock ⚠️");
+    return;
+  }
+
+  cart.push({...p});
 
   localStorage.setItem(
     "cart",
@@ -1229,27 +1279,74 @@ function searchProducts() {
     (
       p.name.toLowerCase().includes(keyword) ||
       String(p.price).includes(keyword) ||
-      (p.size && p.size.toLowerCase().includes(keyword))
+      (p.size && String(p.size).toLowerCase().includes(keyword))
     )
   );
 
   document.getElementById("products").innerHTML =
     filtered.map(p => `
+
       <div class="card">
+
         <img src="${p.image}">
+
         <h4>${p.name}</h4>
+
         <p>₹${p.price}</p>
-        <p><b>Size:</b> ${p.size || "Free Size"}</p>
-        <button onclick='addToCart(${JSON.stringify(p)})'>
-          Add to Cart
-        </button>
+
+        <p>
+          <b>Size:</b> ${p.size || "Free Size"}
+        </p>
+
+        ${
+          p.stock > 0
+            ? `
+              <p style="color:green;font-weight:bold;">
+                Stock: ${p.stock} ✅
+              </p>
+
+              <button onclick="addToCartById('${p.id}')">
+                Add to Cart
+              </button>
+            `
+            : `
+              <p style="color:red;font-weight:bold;">
+                Out of Stock ❌
+              </p>
+
+              <button disabled
+                style="background:gray;cursor:not-allowed;">
+                Out of Stock
+              </button>
+            `
+        }
+
       </div>
+
     `).join("");
 
   if (filtered.length === 0) {
     document.getElementById("products").innerHTML =
       "<h3>No products found 😔</h3>";
   }
+}
+  function reduceStock(orderedItems) {
+
+  orderedItems.forEach(item => {
+
+    const product =
+      data.find(p => p.id === item.id);
+
+    if (product && product.stock > 0) {
+      product.stock -= 1;
+    }
+
+  });
+
+  localStorage.setItem(
+    "products",
+    JSON.stringify(data)
+  );
 }
 async function saveAddress() {
 
@@ -1338,9 +1435,12 @@ async function confirmPayment(method) {
     status: "Processing"
   };
 
-  await saveOrder(order);
-  sendWhatsAppNotification(order);
+await saveOrder(order);
 
+// Reduce stock after successful order
+reduceStock(cart);
+
+sendWhatsAppNotification(order);
   document.getElementById("successTotal").innerHTML =
     "Total Paid: ₹" + total;
 
