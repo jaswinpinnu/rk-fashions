@@ -584,25 +584,15 @@
   <div id="productDetails"></div>
 
 </div>
-  <!-- WISHLIST PAGE -->
-
-<div id="wishlistPage" class="container hidden">
-
-  <button class="back-btn" onclick="goBack('categoryPage')">
-    ⬅ Back
-  </button>
-
-  <h2>❤️ My Wishlist</h2>
-
-  <div id="wishlistProducts" class="products"></div>
-
-</div>
 <!-- ORDER HISTORY PAGE -->
 <div id="orderHistoryPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
   <h2>Order History</h2>
   <div id="orderHistoryList"></div>
 </div>
+  <button id="wishlistBtn" onclick="showWishlist()">
+  ❤️ Wishlist
+</button>
 <!-- REGISTER -->
 <div id="registerPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
@@ -1448,9 +1438,12 @@ async function addToCartById(productId) {
     return;
   }
 
-  // Don't allow same product twice
-  const alreadyInCart =
-    cart.some(item => item.id === p.id);
+  // Get latest cart
+  cart = JSON.parse(localStorage.getItem("cart") || "[]");
+
+  const alreadyInCart = cart.some(
+    item => item.id === p.id
+  );
 
   if (alreadyInCart) {
     alert("Only 1 item available in stock ⚠️");
@@ -1459,16 +1452,16 @@ async function addToCartById(productId) {
 
   cart.push({...p});
 
+  // Save immediately
   localStorage.setItem(
     "cart",
     JSON.stringify(cart)
   );
 
-  await saveCartToFirestore();
-
   alert("Added to cart 🛒");
-}
 
+  console.log("Cart saved:", cart);
+}
 function showCart(){
   showPage("cartPage");
   let total = 0;
