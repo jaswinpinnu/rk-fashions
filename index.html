@@ -568,6 +568,19 @@
   <div id="productDetails"></div>
 
 </div>
+  <!-- WISHLIST PAGE -->
+
+<div id="wishlistPage" class="container hidden">
+
+  <button class="back-btn" onclick="goBack('categoryPage')">
+    ⬅ Back
+  </button>
+
+  <h2>❤️ My Wishlist</h2>
+
+  <div id="wishlistProducts" class="products"></div>
+
+</div>
 <!-- ORDER HISTORY PAGE -->
 <div id="orderHistoryPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
@@ -1294,6 +1307,80 @@ function loadProducts() {
 
 </div>
     `).join("");
+}
+  function showWishlist() {
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    alert("Please login first ❌");
+    return;
+  }
+
+  const wishlist =
+    JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  const container =
+    document.getElementById("wishlistProducts");
+
+  if (wishlist.length === 0) {
+
+    container.innerHTML =
+      "<h3>❤️ Your wishlist is empty</h3>";
+
+    showPage("wishlistPage");
+    return;
+  }
+
+  container.innerHTML =
+    wishlist.map(product => `
+
+      <div class="card">
+
+        <img
+          src="${product.image}"
+          onclick="showProductDetails('${product.id}')"
+          style="cursor:pointer;"
+        >
+
+        <h4>${product.name}</h4>
+
+        <p>₹${product.price}</p>
+
+        <button
+          onclick="addToCartById('${product.id}')">
+          🛒 Add to Cart
+        </button>
+
+        <button
+          onclick="removeFromWishlist('${product.id}')"
+          style="background:red;">
+          ❌ Remove
+        </button>
+
+      </div>
+
+    `).join("");
+
+  showPage("wishlistPage");
+}
+  function removeFromWishlist(productId) {
+
+  let wishlist =
+    JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  wishlist =
+    wishlist.filter(item => item.id !== productId);
+
+  localStorage.setItem(
+    "wishlist",
+    JSON.stringify(wishlist)
+  );
+
+  alert("Removed from Wishlist ❌");
+
+  showWishlist();
 }
   function addToWishlist(productId) {
 
