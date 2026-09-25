@@ -1818,18 +1818,20 @@ function showPage(id){
 
   const logoutBtn = document.getElementById("logoutBtn");
   const orderBtn = document.getElementById("orderBtn");
+const wishlistBtn = document.getElementById("wishlistBtn");
 
-  if(
+if (
   id === "loginPage" ||
   id === "registerPage" ||
   id === "forgotPage"
-){
+) {
   logoutBtn.style.display = "none";
   orderBtn.style.display = "none";
-}
-else{
+  wishlistBtn.style.display = "none";
+} else {
   logoutBtn.style.display = "block";
   orderBtn.style.display = "block";
+  wishlistBtn.style.display = "block";
 }
   if(id === "addressPage"){
     loadSavedAddress();
