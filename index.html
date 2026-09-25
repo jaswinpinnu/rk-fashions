@@ -224,6 +224,98 @@
   border:1px solid #ccc;
   border-radius:6px;
 }
+    /* =========================
+   PRODUCT DETAILS
+========================= */
+
+.product-details {
+  max-width: 900px;
+  margin: 20px auto;
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+
+  display: flex;
+  gap: 35px;
+  align-items: center;
+  text-align: left;
+}
+
+.product-details-image {
+  width: 380px;
+  height: 380px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.product-details-info {
+  flex: 1;
+}
+
+.product-details-info h2 {
+  font-family: 'Playfair Display', serif;
+  margin-bottom: 10px;
+}
+
+.product-price {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.product-size {
+  font-size: 18px;
+  margin: 15px 0;
+}
+
+.stock-available {
+  color: green;
+  font-weight: bold;
+}
+
+.stock-unavailable {
+  color: red;
+  font-weight: bold;
+}
+
+.product-description {
+  line-height: 1.6;
+  color: #555;
+  margin: 20px 0;
+}
+
+.wishlist-btn {
+  background: #ff4081;
+}
+
+.details-cart-btn {
+  background: #fb641b;
+  font-size: 16px;
+}
+
+/* Mobile */
+
+@media screen and (max-width: 768px) {
+
+  .product-details {
+    flex-direction: column;
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .product-details-image {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+  }
+
+  .product-details-info {
+    width: 100%;
+    text-align: center;
+  }
+
+}
 /* =========================
    MOBILE RESPONSIVE DESIGN
 ========================= */
@@ -464,6 +556,17 @@
   <button onclick="deleteAccount()" style="background:black;color:white;">
   🗑️ Delete Account
 </button>
+</div>
+  <!-- PRODUCT DETAILS PAGE -->
+
+<div id="productDetailsPage" class="container hidden">
+
+  <button class="back-btn" onclick="goBack('productPage')">
+    ⬅ Back
+  </button>
+
+  <div id="productDetails"></div>
+
 </div>
 <!-- ORDER HISTORY PAGE -->
 <div id="orderHistoryPage" class="container hidden">
@@ -824,6 +927,101 @@ function showLoadingThenLogin(){
 
   startLoadingAnimation(); // ✅ THIS IS IMPORTANT
 }
+  // ==========================
+// PRODUCT DETAILS
+// ==========================
+
+function showProductDetails(productId) {
+
+  const product = data.find(p => p.id === productId);
+
+  if (!product) {
+    alert("Product not found ❌");
+    return;
+  }
+
+  const container = document.getElementById("productDetails");
+
+  container.innerHTML = `
+
+    <div class="product-details">
+
+      <img
+        src="${product.image}"
+        class="product-details-image"
+        alt="${product.name}"
+      >
+
+      <div class="product-details-info">
+
+        <h2>${product.name}</h2>
+
+        <div class="product-price">
+          ₹${product.price}
+        </div>
+
+        <div class="product-size">
+          <b>Size:</b>
+          ${product.size || "Free Size"}
+        </div>
+
+        ${
+          product.stock > 0
+
+          ? `
+            <p class="stock-available">
+              🟢 In Stock (${product.stock})
+            </p>
+          `
+
+          : `
+            <p class="stock-unavailable">
+              🔴 Out of Stock
+            </p>
+          `
+        }
+
+        <p class="product-description">
+          Premium quality fashion wear from
+          <b>RK FASHIONS</b>.
+          Stylish design, comfortable fit and
+          perfect for your wardrobe.
+        </p>
+
+        <button
+          class="wishlist-btn"
+          onclick="addToWishlist('${product.id}')">
+          ❤️ Add to Wishlist
+        </button>
+
+        ${
+          product.stock > 0
+
+          ? `
+            <button
+              class="details-cart-btn"
+              onclick="addToCartById('${product.id}')">
+              🛒 Add to Cart
+            </button>
+          `
+
+          : `
+            <button
+              disabled
+              style="background:gray;">
+              Out of Stock
+            </button>
+          `
+        }
+
+      </div>
+
+    </div>
+
+  `;
+
+  showPage("productDetailsPage");
+}
 function showForgotPage() {
   showPage("forgotPage");
 }
@@ -1059,46 +1257,78 @@ function loadProducts() {
   document.getElementById("products").innerHTML =
     filtered.map((p) => `
 
-      <div class="card">
+<div class="card">
 
-        <img src="${p.image}">
+  <img
+    src="${p.image}"
+    onclick="showProductDetails('${p.id}')"
+    style="cursor:pointer;"
+  >
 
-        <h4>${p.name}</h4>
+  <h4
+    onclick="showProductDetails('${p.id}')"
+    style="cursor:pointer;"
+  >
+    ${p.name}
+  </h4>
 
-        <p>₹${p.price}</p>
+  <p>₹${p.price}</p>
 
-        ${
-          p.size
-            ? `<p><b>Size:</b> ${p.size}</p>`
-            : `<p><b>Free Size</b></p>`
-        }
+  ${
+    p.stock > 0
+    ? `
+      <p style="color:green;font-weight:bold;">
+        Stock: ${p.stock} ✅
+      </p>
 
-        ${
-          p.stock > 0
-            ? `
-              <p style="color:black;font-weight:bold;">
-                Stock: ${p.stock} 
-              </p>
+      <button onclick="showProductDetails('${p.id}')">
+        View Details 👀
+      </button>
+    `
+    : `
+      <p style="color:red;font-weight:bold;">
+        Out of Stock ❌
+      </p>
+    `
+  }
 
-              <button onclick="addToCartById('${p.id}')">
-                Add to Cart
-              </button>
-            `
-            : `
-              <p style="color:red;font-weight:bold;">
-                Out of Stock ❌
-              </p>
-
-              <button disabled
-                style="background:gray;cursor:not-allowed;">
-                Out of Stock
-              </button>
-            `
-        }
-
-      </div>
-
+</div>
     `).join("");
+}
+  function addToWishlist(productId) {
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    alert("Please login first ❌");
+    return;
+  }
+
+  let wishlist =
+    JSON.parse(localStorage.getItem("wishlist")) || [];
+
+  const alreadyExists =
+    wishlist.some(item => item.id === productId);
+
+  if (alreadyExists) {
+    alert("Already in Wishlist ❤️");
+    return;
+  }
+
+  const product =
+    data.find(p => p.id === productId);
+
+  if (!product) return;
+
+  wishlist.push(product);
+
+  localStorage.setItem(
+    "wishlist",
+    JSON.stringify(wishlist)
+  );
+
+  alert("Added to Wishlist ❤️");
 }
 // CART
 async function addToCartById(productId) {
