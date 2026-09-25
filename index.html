@@ -319,8 +319,8 @@
    #wishlistBtn {
   display: none;
   position: fixed;
-  top: 20px;
-  right: 150px;
+  top: 70px;
+  right: 20px;
   background: #ff4081;
   color: white;
   border: none;
@@ -594,6 +594,21 @@
   <button id="wishlistBtn" onclick="showWishlist()">
   ❤️ Wishlist
 </button>
+  <!-- WISHLIST PAGE -->
+<div id="wishlistPage" class="container hidden">
+
+  <button class="back-btn" onclick="goBack('categoryPage')">
+    ⬅ Back
+  </button>
+
+  <h2>❤️ My Wishlist</h2>
+
+  <div
+    id="wishlistProducts"
+    class="products">
+  </div>
+
+</div>
 <!-- REGISTER -->
 <div id="registerPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
