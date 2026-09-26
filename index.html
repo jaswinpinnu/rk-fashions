@@ -841,25 +841,36 @@
 <!-- ADDRESS PAGE -->
 <div id="addressPage" class="container hidden">
   <button class="back-btn" onclick="goBack('cartPage')">⬅</button>
+
   <h2>Delivery Address</h2>
+
   <input id="fullname" placeholder="Full Name"><br>
+
   <input id="phone" placeholder="Mobile Number"><br>
 
-<input type="text" id="city" placeholder="City">
+  <!-- PINCODE VALIDATION -->
+  <input
+    id="pincode"
+    placeholder="Enter 6-digit Pincode"
+    maxlength="6"
+    inputmode="numeric"
+    oninput="validatePincode()"
+  ><br>
 
-<input type="text" id="state" placeholder="State">
-<input
-  type="text"
-  id="pincode"
-  placeholder="Enter 6-digit Pincode"
-  maxlength="6"
-  inputmode="numeric"
-  oninput="validatePincode()"
->
-<p id="pincodeMessage"></p>
+  <p id="pincodeMessage"></p>
+
+  <input id="city" placeholder="City"><br>
+
+  <input id="state" placeholder="State"><br>
+
   <input id="address" placeholder="Full Address"><br>
+
   <button onclick="saveOnly()">💾 Save Address</button>
-  <button onclick="saveAddress()">Continue to Payment ➡</button>
+
+  <button onclick="saveAddress()">
+    Continue to Payment ➡
+  </button>
+
 </div>
 <!-- PAYMENT -->
 <div id="paymentPage" class="container hidden">
@@ -2831,11 +2842,9 @@ onMessage(messaging, (payload) => {
     icon: "/icon-192.png"
   });
 });
-
 window.getFCMToken = getFCMToken; 
   window.auth = auth;
 window.db = db;
-
 window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
 window.signInWithEmailAndPassword = signInWithEmailAndPassword;
 window.signOut = signOut;
@@ -2848,12 +2857,10 @@ window.where = where;
 window.setDoc = setDoc;
 window.getDoc = getDoc;
 window.deleteDoc = deleteDoc;
-
 window.showProductDetails = showProductDetails;
 window.loadProductReviews = loadProductReviews;
 window.selectReviewRating = selectReviewRating;
 window.submitProductReview = submitProductReview;
-
 window.doc = doc;
 window.deleteUser = deleteUser;
 </script>
