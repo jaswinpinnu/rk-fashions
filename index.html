@@ -510,6 +510,127 @@
     font-size: 11px;
   }
 }
+
+/* ==========================
+   PRODUCT REVIEWS & RATINGS
+   ========================== */
+.review-section {
+  margin-top: 30px;
+  padding: 22px;
+  background: rgba(255,255,255,0.95);
+  border-radius: 14px;
+  text-align: left;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.12);
+}
+
+.review-summary {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.review-average {
+  font-size: 36px;
+  font-weight: bold;
+}
+
+.review-stars {
+  color: #f5a623;
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+
+.review-count {
+  color: #666;
+}
+
+.review-form {
+  padding: 18px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin-bottom: 22px;
+}
+
+.star-picker {
+  display: flex;
+  gap: 5px;
+  margin: 8px 0 12px;
+}
+
+.star-picker button {
+  background: transparent;
+  color: #ccc;
+  font-size: 30px;
+  padding: 0 3px;
+  margin: 0;
+}
+
+.star-picker button.selected {
+  color: #f5a623;
+}
+
+.review-textarea {
+  width: 100%;
+  min-height: 90px;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.review-card {
+  padding: 16px 0;
+  border-top: 1px solid #e5e5e5;
+}
+
+.review-card:first-child {
+  border-top: none;
+}
+
+.review-user {
+  font-weight: bold;
+}
+
+.review-date {
+  color: #777;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.verified-badge {
+  color: #168a45;
+  font-size: 13px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+.review-body {
+  margin-top: 8px;
+  line-height: 1.5;
+  color: #333;
+}
+
+.review-empty {
+  color: #777;
+  padding: 10px 0;
+}
+
+.review-login-note {
+  padding: 12px;
+  background: #fff7e8;
+  border-radius: 8px;
+  color: #6d4c00;
+}
+
+.review-disabled {
+  color: #777;
+  font-size: 14px;
+}
+
 </style>
 </head>
 
@@ -1011,6 +1132,11 @@ function showProductDetails(productId) {
 
         <h2>${product.name}</h2>
 
+        <div id="productRatingSummary_${product.id}">
+          <span class="review-stars">☆☆☆☆☆</span>
+          <span class="review-count">Loading reviews...</span>
+        </div>
+
         <div class="product-price">
           ₹${product.price}
         </div>
@@ -1022,13 +1148,11 @@ function showProductDetails(productId) {
 
         ${
           product.stock > 0
-
           ? `
             <p class="stock-available">
               🟢 In Stock (${product.stock})
             </p>
           `
-
           : `
             <p class="stock-unavailable">
               🔴 Out of Stock
@@ -1051,7 +1175,6 @@ function showProductDetails(productId) {
 
         ${
           product.stock > 0
-
           ? `
             <button
               class="details-cart-btn"
@@ -1059,11 +1182,8 @@ function showProductDetails(productId) {
               🛒 Add to Cart
             </button>
           `
-
           : `
-            <button
-              disabled
-              style="background:gray;">
+            <button disabled style="background:gray;">
               Out of Stock
             </button>
           `
@@ -1073,10 +1193,337 @@ function showProductDetails(productId) {
 
     </div>
 
+    <div class="review-section">
+      <h2>⭐ Customer Reviews</h2>
+
+      <div id="reviewSummary_${product.id}" class="review-summary">
+        <div class="review-average">—</div>
+        <div>
+          <div class="review-stars">☆☆☆☆☆</div>
+          <div class="review-count">Loading reviews...</div>
+        </div>
+      </div>
+
+      <div id="reviewFormArea_${product.id}"></div>
+
+      <div id="reviewsList_${product.id}">
+        <div class="review-empty">Loading reviews...</div>
+      </div>
+    </div>
   `;
 
   showPage("productDetailsPage");
+
+  loadProductReviews(product.id);
 }
+
+
+// ==========================
+// PRODUCT REVIEWS & RATINGS
+// ==========================
+
+function renderStars(rating) {
+  const rounded = Math.round(Number(rating) || 0);
+  return "★".repeat(rounded) + "☆".repeat(5 - rounded);
+}
+
+function escapeReviewText(value) {
+  const div = document.createElement("div");
+  div.textContent = value ?? "";
+  return div.innerHTML;
+}
+
+function formatReviewDate(value) {
+  if (!value) return "";
+  try {
+    if (value.toDate) return value.toDate().toLocaleDateString();
+    return new Date(value).toLocaleDateString();
+  } catch {
+    return "";
+  }
+}
+
+async function hasPurchasedProduct(productId, uid) {
+  if (!uid) return false;
+
+  try {
+    const snapshot = await getDocs(
+      query(collection(db, "orders"), where("uid", "==", uid))
+    );
+
+    return snapshot.docs.some(orderDoc => {
+      const order = orderDoc.data();
+      if (order.status === "Cancelled") return false;
+
+      return (order.items || []).some(item =>
+        String(item.id) === String(productId)
+      );
+    });
+  } catch (error) {
+    console.error("Purchase verification error:", error);
+    return false;
+  }
+}
+
+async function loadProductReviews(productId) {
+
+  const list = document.getElementById(`reviewsList_${productId}`);
+  const summary = document.getElementById(`reviewSummary_${productId}`);
+  const ratingSummary = document.getElementById(`productRatingSummary_${productId}`);
+  const formArea = document.getElementById(`reviewFormArea_${productId}`);
+
+  if (!list) return;
+
+  try {
+    const snapshot = await getDocs(
+      query(
+        collection(db, "reviews"),
+        where("productId", "==", String(productId))
+      )
+    );
+
+    const reviews = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
+
+    reviews.sort((a, b) => {
+      const aTime = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+      const bTime = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      return bTime - aTime;
+    });
+
+    const total = reviews.length;
+    const average = total
+      ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / total
+      : 0;
+
+    const averageText = total ? average.toFixed(1) : "0.0";
+    const stars = renderStars(average);
+
+    if (summary) {
+      summary.innerHTML = `
+        <div class="review-average">${averageText}</div>
+        <div>
+          <div class="review-stars">${stars}</div>
+          <div class="review-count">${total} review${total === 1 ? "" : "s"}</div>
+        </div>
+      `;
+    }
+
+    if (ratingSummary) {
+      ratingSummary.innerHTML = `
+        <span class="review-stars">${stars}</span>
+        <span class="review-count">
+          ${total ? `${averageText} (${total})` : "No reviews yet"}
+        </span>
+      `;
+    }
+
+    if (total === 0) {
+      list.innerHTML = `
+        <div class="review-empty">
+          No reviews yet. Be the first to review this product! ⭐
+        </div>
+      `;
+    } else {
+      list.innerHTML = reviews.map(review => `
+        <div class="review-card">
+          <div>
+            <span class="review-stars">${renderStars(review.rating)}</span>
+            <span class="review-user">
+              ${escapeReviewText(review.userName || "Customer")}
+            </span>
+            ${review.verifiedPurchase ? `
+              <span class="verified-badge">✓ Verified Purchase</span>
+            ` : ""}
+            <span class="review-date">
+              ${formatReviewDate(review.createdAt)}
+            </span>
+          </div>
+          <div class="review-body">
+            ${escapeReviewText(review.review)}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!currentUser) {
+      formArea.innerHTML = `
+        <div class="review-login-note">
+          Please login to write a review.
+        </div>
+      `;
+      return;
+    }
+
+    const purchased = await hasPurchasedProduct(productId, currentUser.uid);
+
+    const alreadyReviewed = reviews.some(
+      review => review.uid === currentUser.uid
+    );
+
+    if (alreadyReviewed) {
+      formArea.innerHTML = `
+        <div class="review-disabled">
+          ✓ You have already reviewed this product.
+        </div>
+      `;
+      return;
+    }
+
+    if (!purchased) {
+      formArea.innerHTML = `
+        <div class="review-login-note">
+          📦 You can review this product after purchasing it.
+        </div>
+      `;
+      return;
+    }
+
+    formArea.innerHTML = `
+      <div class="review-form">
+        <h3>Write a Review</h3>
+
+        <label><b>Your Rating</b></label>
+
+        <div class="star-picker" id="starPicker_${productId}">
+          ${[1,2,3,4,5].map(n => `
+            <button
+              type="button"
+              aria-label="${n} star"
+              onclick="selectReviewRating('${productId}', ${n})">
+              ☆
+            </button>
+          `).join("")}
+        </div>
+
+        <textarea
+          id="reviewText_${productId}"
+          class="review-textarea"
+          maxlength="500"
+          placeholder="Share your experience with this product..."
+        ></textarea>
+
+        <button onclick="submitProductReview('${productId}')">
+          ⭐ Submit Review
+        </button>
+
+        <div id="reviewMessage_${productId}"></div>
+      </div>
+    `;
+
+  } catch (error) {
+    console.error("Review loading error:", error);
+    list.innerHTML = `
+      <div class="review-empty">
+        Reviews could not be loaded right now.
+      </div>
+    `;
+  }
+}
+
+const selectedReviewRatings = {};
+
+function selectReviewRating(productId, rating) {
+  selectedReviewRatings[productId] = rating;
+
+  const picker = document.getElementById(`starPicker_${productId}`);
+  if (!picker) return;
+
+  picker.querySelectorAll("button").forEach((button, index) => {
+    button.classList.toggle("selected", index < rating);
+    button.textContent = index < rating ? "★" : "☆";
+  });
+}
+
+async function submitProductReview(productId) {
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    alert("Please login first ❌");
+    return;
+  }
+
+  const rating = selectedReviewRatings[productId] || 0;
+  const text = document
+    .getElementById(`reviewText_${productId}`)
+    ?.value.trim();
+
+  const message = document.getElementById(`reviewMessage_${productId}`);
+
+  if (rating < 1 || rating > 5) {
+    alert("Please select a star rating ⭐");
+    return;
+  }
+
+  if (!text) {
+    alert("Please write your review ✍️");
+    return;
+  }
+
+  if (text.length < 3) {
+    alert("Review is too short.");
+    return;
+  }
+
+  const purchased = await hasPurchasedProduct(productId, currentUser.uid);
+
+  if (!purchased) {
+    alert("Only customers who purchased this product can review it.");
+    return;
+  }
+
+  try {
+
+    const existing = await getDocs(
+      query(
+        collection(db, "reviews"),
+        where("productId", "==", String(productId))
+      )
+    );
+
+    const alreadyReviewed = existing.docs.some(
+      reviewDoc => reviewDoc.data().uid === currentUser.uid
+    );
+
+    if (alreadyReviewed) {
+      alert("You have already reviewed this product.");
+      return;
+    }
+
+    const userName =
+      currentUser.displayName ||
+      currentUser.name ||
+      (currentUser.email
+        ? currentUser.email.split("@")[0]
+        : "Customer");
+
+    await addDoc(collection(db, "reviews"), {
+      productId: String(productId),
+      uid: currentUser.uid,
+      userName: userName,
+      rating: rating,
+      review: text,
+      verifiedPurchase: true,
+      createdAt: serverTimestamp()
+    });
+
+    alert("Thank you for your review! ⭐");
+
+    selectedReviewRatings[productId] = 0;
+    await loadProductReviews(productId);
+
+  } catch (error) {
+    console.error("Review submit error:", error);
+    alert("Could not submit your review. Please try again.");
+  }
+}
+
 function showForgotPage() {
   showPage("forgotPage");
 }
@@ -2250,6 +2697,7 @@ async function loadCartFromFirestore() {
   doc,
   setDoc,
   getDoc,
+  serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import {
   getMessaging,
@@ -2306,6 +2754,12 @@ window.where = where;
 window.setDoc = setDoc;
 window.getDoc = getDoc;
 window.deleteDoc = deleteDoc;
+
+window.showProductDetails = showProductDetails;
+window.loadProductReviews = loadProductReviews;
+window.selectReviewRating = selectReviewRating;
+window.submitProductReview = submitProductReview;
+
 window.doc = doc;
 window.deleteUser = deleteUser;
 </script>
