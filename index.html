@@ -1632,7 +1632,7 @@ async function resetPassword() {
     alert(error.message);
   }
 }
-  async function validatePincode() {
+ async function validatePincode() {
 
   const pincodeInput = document.getElementById("pincode");
   const message = document.getElementById("pincodeMessage");
@@ -1650,6 +1650,7 @@ async function resetPassword() {
   if (pincode.length !== 6) {
     message.innerHTML =
       "❌ Please enter a valid 6-digit pincode.";
+
     message.style.color = "red";
     return false;
   }
@@ -1673,24 +1674,33 @@ async function resetPassword() {
 
       const postOffice = result[0].PostOffice[0];
 
+      // Real postal location
+      const postOfficeName = postOffice.Name;
+      const district = postOffice.District;
+      const state = postOffice.State;
+
       message.innerHTML =
-        `✅ Delivery available<br>
-         📍 ${postOffice.Name},
-         ${postOffice.District},
-         ${postOffice.State}`;
+        `✅ Valid Pincode<br>
+         📍 ${postOfficeName}<br>
+         🏙️ ${district}<br>
+         🌎 ${state}`;
 
       message.style.color = "green";
 
-      // Optional: automatically fill city/state
-      const cityInput = document.getElementById("city");
-      const stateInput = document.getElementById("state");
+      // Fill City
+      const cityInput =
+        document.getElementById("city");
 
       if (cityInput) {
-        cityInput.value = postOffice.District;
+        cityInput.value = postOfficeName;
       }
 
+      // Fill State
+      const stateInput =
+        document.getElementById("state");
+
       if (stateInput) {
-        stateInput.value = postOffice.State;
+        stateInput.value = state;
       }
 
       return true;
@@ -1698,7 +1708,7 @@ async function resetPassword() {
     } else {
 
       message.innerHTML =
-        "❌ Invalid pincode. Please check and try again.";
+        "❌ Invalid pincode. Please check again.";
 
       message.style.color = "red";
 
@@ -1707,7 +1717,10 @@ async function resetPassword() {
 
   } catch (error) {
 
-    console.error("Pincode validation error:", error);
+    console.error(
+      "Pincode validation error:",
+      error
+    );
 
     message.innerHTML =
       "⚠️ Unable to verify pincode. Please try again.";
