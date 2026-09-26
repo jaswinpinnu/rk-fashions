@@ -750,6 +750,18 @@
   </div>
 
 </div>
+  <!-- PINCODE VALIDATION -->
+
+<input
+  type="text"
+  id="pincode"
+  placeholder="Enter 6-digit Pincode"
+  maxlength="6"
+  inputmode="numeric"
+  oninput="validatePincode()"
+>
+
+<p id="pincodeMessage"></p>
 <!-- REGISTER -->
 <div id="registerPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
@@ -1610,6 +1622,91 @@ async function resetPassword() {
     alert("Password reset email sent ✅");
   } catch (error) {
     alert(error.message);
+  }
+}
+  async function validatePincode() {
+
+  const pincodeInput = document.getElementById("pincode");
+  const message = document.getElementById("pincodeMessage");
+
+  const pincode = pincodeInput.value.trim();
+
+  // Allow only numbers
+  pincodeInput.value = pincode.replace(/\D/g, "");
+
+  if (pincode.length === 0) {
+    message.innerHTML = "";
+    return false;
+  }
+
+  if (pincode.length !== 6) {
+    message.innerHTML =
+      "❌ Please enter a valid 6-digit pincode.";
+    message.style.color = "red";
+    return false;
+  }
+
+  message.innerHTML = "🔍 Checking pincode...";
+  message.style.color = "orange";
+
+  try {
+
+    const response = await fetch(
+      `https://api.postalpincode.in/pincode/${pincode}`
+    );
+
+    const result = await response.json();
+
+    if (
+      result[0].Status === "Success" &&
+      result[0].PostOffice &&
+      result[0].PostOffice.length > 0
+    ) {
+
+      const postOffice = result[0].PostOffice[0];
+
+      message.innerHTML =
+        `✅ Delivery available<br>
+         📍 ${postOffice.Name},
+         ${postOffice.District},
+         ${postOffice.State}`;
+
+      message.style.color = "green";
+
+      // Optional: automatically fill city/state
+      const cityInput = document.getElementById("city");
+      const stateInput = document.getElementById("state");
+
+      if (cityInput) {
+        cityInput.value = postOffice.District;
+      }
+
+      if (stateInput) {
+        stateInput.value = postOffice.State;
+      }
+
+      return true;
+
+    } else {
+
+      message.innerHTML =
+        "❌ Invalid pincode. Please check and try again.";
+
+      message.style.color = "red";
+
+      return false;
+    }
+
+  } catch (error) {
+
+    console.error("Pincode validation error:", error);
+
+    message.innerHTML =
+      "⚠️ Unable to verify pincode. Please try again.";
+
+    message.style.color = "red";
+
+    return false;
   }
 }
 async function showOrderHistory() {
