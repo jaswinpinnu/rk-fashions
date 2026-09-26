@@ -750,18 +750,6 @@
   </div>
 
 </div>
-  <!-- PINCODE VALIDATION -->
-
-<input
-  type="text"
-  id="pincode"
-  placeholder="Enter 6-digit Pincode"
-  maxlength="6"
-  inputmode="numeric"
-  oninput="validatePincode()"
->
-
-<p id="pincodeMessage"></p>
 <!-- REGISTER -->
 <div id="registerPage" class="container hidden">
   <button class="back-btn" onclick="goBack('loginPage')">⬅</button>
@@ -856,7 +844,24 @@
   <h2>Delivery Address</h2>
   <input id="fullname" placeholder="Full Name"><br>
   <input id="phone" placeholder="Mobile Number"><br>
-  <input id="pincode" placeholder="Pincode"><br>
+ <input type="text" id="phone" placeholder="Phone Number">
+
+<input type="text" id="address" placeholder="Address">
+
+<input type="text" id="city" placeholder="City">
+
+<input type="text" id="state" placeholder="State">
+<input
+  type="text"
+  id="pincode"
+  placeholder="Enter 6-digit Pincode"
+  maxlength="6"
+  inputmode="numeric"
+  oninput="validatePincode()"
+>
+<p id="pincodeMessage"></p>
+
+<button onclick="saveAddress()">Save Address</button>
   <input id="city" placeholder="City"><br>
   <input id="state" placeholder="State"><br>
   <input id="address" placeholder="Full Address"><br>
