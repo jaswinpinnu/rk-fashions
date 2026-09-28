@@ -637,7 +637,37 @@
   color: #777;
   font-size: 14px;
 }
+    /* =========================
+   INVOICE BUTTONS
+========================= */
 
+.invoice-btn {
+  background: #2874f0;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.invoice-btn:hover {
+  background: #1258c7;
+}
+
+.print-invoice-btn {
+  background: #555;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.print-invoice-btn:hover {
+  background: #333;
+}
 </style>
 </head>
 
@@ -1738,6 +1768,7 @@ async function resetPassword() {
   }
 }
 async function showOrderHistory() {
+
   try {
 
     const currentUser =
@@ -1749,13 +1780,13 @@ async function showOrderHistory() {
     }
 
     const q = query(
-  collection(db, "orders"),
-  where("uid", "==", currentUser.uid)
-);
+      collection(db, "orders"),
+      where("uid", "==", currentUser.uid)
+    );
 
-const snapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
 
-console.log("Orders Found:", snapshot.size);
+    console.log("Orders Found:", snapshot.size);
 
     const container =
       document.getElementById("orderHistoryList");
@@ -1768,18 +1799,30 @@ console.log("Orders Found:", snapshot.size);
       const orderId = docSnap.id;
 
       html += `
+
         <div class="card">
 
           <h4>🧾 Order</h4>
 
           <p>
+            <b>Order ID:</b>
+            ${orderId}
+          </p>
+
+          <p>
             <b>Items:</b><br>
-            ${order.items
-              .map(item => `${item.name} (₹${item.price})`)
+
+            ${(order.items || [])
+              .map(item =>
+                `${item.name} - ₹${item.price}`
+              )
               .join("<br>")}
           </p>
 
-          <p><b>Total:</b> ₹${order.total}</p>
+          <p>
+            <b>Total:</b>
+            ₹${order.total}
+          </p>
 
           <p>
             <b>Status:</b>
@@ -1787,32 +1830,72 @@ console.log("Orders Found:", snapshot.size);
           </p>
 
           <p>
+            <b>Payment:</b>
+            ${order.paymentMethod || "UPI"}
+          </p>
+
+          <p>
+            <b>Payment Status:</b>
+            ${order.paymentStatus || "Paid"}
+          </p>
+
+          <p>
             <b>Delivery:</b>
             ${order.deliveryDate || "Not Available"}
           </p>
 
-          <small>${order.date}</small>
+          <small>
+            ${order.date || ""}
+          </small>
 
           <br><br>
 
+          <!-- INVOICE BUTTONS -->
+
+          <button
+            class="invoice-btn"
+            onclick="downloadInvoice('${orderId}')">
+            🧾 Download Invoice
+          </button>
+
+          <button
+            class="print-invoice-btn"
+            onclick="printInvoice('${orderId}')">
+            🖨️ Print Invoice
+          </button>
+
+          <br>
+
           ${
             order.status !== "Cancelled"
-              ? `
-                <button
-                  style="background:red;color:white"
-                  onclick="cancelOrder('${orderId}')">
-                  ❌ Cancel Order
-                </button>
-              `
-              : `
-                <button disabled
-                  style="background:gray;color:white">
-                  Cancelled
-                </button>
-              `
+
+            ? `
+
+              <button
+                style="background:red;color:white"
+                onclick="cancelOrder('${orderId}')">
+
+                ❌ Cancel Order
+
+              </button>
+
+            `
+
+            : `
+
+              <button
+                disabled
+                style="background:gray;color:white">
+
+                Cancelled
+
+              </button>
+
+            `
           }
 
         </div>
+
       `;
     });
 
@@ -1821,16 +1904,710 @@ console.log("Orders Found:", snapshot.size);
 
     showPage("orderHistoryPage");
 
-  } catch (err) {
-  
-    console.error(err);
-  
-    alert("Failed to load orders ❌");
-  
   }
-  
+
+  catch (err) {
+
+    console.error(err);
+
+    alert("Failed to load orders ❌");
+
+  }
+
+}
+  // ==========================================
+// RK FASHIONS INVOICE GENERATOR
+// ==========================================
+
+async function getOrderForInvoice(orderId) {
+
+  try {
+
+    const orderRef = doc(db, "orders", orderId);
+
+    const orderSnap = await getDoc(orderRef);
+
+    if (!orderSnap.exists()) {
+
+      alert("Order not found ❌");
+
+      return null;
+    }
+
+    return {
+      id: orderSnap.id,
+      ...orderSnap.data()
+    };
+
+  }
+
+  catch (error) {
+
+    console.error("Invoice order error:", error);
+
+    alert("Unable to load order ❌");
+
+    return null;
+  }
+}
+  function createInvoiceHTML(order) {
+
+  const address = order.address || {};
+
+  const invoiceNumber =
+    order.invoiceNumber ||
+    "RKF-" + order.id.substring(0, 8).toUpperCase();
+
+  const orderDate =
+    order.date || new Date().toLocaleString();
+
+  const paymentMethod =
+    order.paymentMethod || "UPI";
+
+  const paymentStatus =
+    order.paymentStatus || "Paid";
+
+  const deliveryDate =
+    order.deliveryDate || "Not Available";
+
+
+  // Calculate subtotal
+
+  const subtotal =
+    (order.items || []).reduce(
+      (sum, item) =>
+        sum + Number(item.price || 0) * Number(item.quantity || 1),
+      0
+    );
+
+
+  const deliveryCharge =
+    Math.max(
+      0,
+      Number(order.total || 0) - subtotal
+    );
+
+
+  const itemsHTML =
+    (order.items || [])
+      .map(item => {
+
+        const quantity =
+          Number(item.quantity || 1);
+
+        const price =
+          Number(item.price || 0);
+
+        const itemTotal =
+          quantity * price;
+
+        return `
+
+          <tr>
+
+            <td>
+              ${escapeInvoiceHTML(item.name || "Product")}
+            </td>
+
+            <td class="center">
+              ${quantity}
+            </td>
+
+            <td class="right">
+              ₹${itemTotal.toFixed(2)}
+            </td>
+
+          </tr>
+
+        `;
+
+      })
+      .join("");
+
+
+  return `
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>
+RK FASHIONS Invoice - ${invoiceNumber}
+</title>
+
+<style>
+
+* {
+  box-sizing: border-box;
 }
 
+body {
+
+  font-family: Arial, sans-serif;
+
+  margin: 0;
+
+  padding: 30px;
+
+  background: #f3f3f3;
+
+  color: #222;
+}
+
+
+.invoice {
+
+  max-width: 850px;
+
+  margin: auto;
+
+  background: white;
+
+  padding: 40px;
+
+  box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+
+}
+
+
+.header {
+
+  text-align: center;
+
+  border-bottom: 3px solid #222;
+
+  padding-bottom: 20px;
+
+  margin-bottom: 25px;
+
+}
+
+
+.header h1 {
+
+  margin: 0;
+
+  font-family: Georgia, serif;
+
+  letter-spacing: 3px;
+
+  font-size: 32px;
+
+}
+
+
+.header p {
+
+  margin: 5px 0;
+
+  color: #666;
+
+}
+
+
+.invoice-info {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 25px;
+
+}
+
+
+.section {
+
+  margin-bottom: 25px;
+
+}
+
+
+.section h3 {
+
+  border-bottom: 1px solid #ddd;
+
+  padding-bottom: 7px;
+
+}
+
+
+table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 15px;
+
+}
+
+
+th {
+
+  background: #222;
+
+  color: white;
+
+  padding: 12px;
+
+  text-align: left;
+
+}
+
+
+td {
+
+  padding: 12px;
+
+  border-bottom: 1px solid #ddd;
+
+}
+
+
+.center {
+
+  text-align: center;
+
+}
+
+
+.right {
+
+  text-align: right;
+
+}
+
+
+.total-box {
+
+  width: 320px;
+
+  margin-left: auto;
+
+  margin-top: 20px;
+
+}
+
+
+.total-row {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  padding: 7px 0;
+
+}
+
+
+.grand-total {
+
+  font-size: 22px;
+
+  font-weight: bold;
+
+  border-top: 2px solid #222;
+
+  padding-top: 12px;
+
+}
+
+
+.payment {
+
+  margin-top: 25px;
+
+  padding: 15px;
+
+  background: #f7f7f7;
+
+  border-radius: 8px;
+
+}
+
+
+.delivery {
+
+  margin-top: 15px;
+
+  padding: 15px;
+
+  background: #fff7e6;
+
+  border-radius: 8px;
+
+}
+
+
+.footer {
+
+  text-align: center;
+
+  border-top: 1px solid #ddd;
+
+  margin-top: 35px;
+
+  padding-top: 20px;
+
+  color: #666;
+
+}
+
+
+@media print {
+
+  body {
+
+    background: white;
+
+    padding: 0;
+
+  }
+
+  .invoice {
+
+    box-shadow: none;
+
+    max-width: 100%;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="invoice">
+
+
+  <!-- HEADER -->
+
+  <div class="header">
+
+    <h1>RK FASHIONS</h1>
+
+    <p>Fashion for Everyone</p>
+
+  </div>
+
+
+  <!-- INVOICE INFO -->
+
+  <div class="invoice-info">
+
+    <div>
+
+      <b>Invoice No:</b><br>
+
+      ${invoiceNumber}
+
+    </div>
+
+    <div>
+
+      <b>Order Date:</b><br>
+
+      ${escapeInvoiceHTML(orderDate)}
+
+    </div>
+
+  </div>
+
+
+  <!-- CUSTOMER -->
+
+  <div class="section">
+
+    <h3>Customer Details</h3>
+
+    <p>
+
+      <b>Name:</b>
+      ${escapeInvoiceHTML(address.name || "Customer")}
+
+      <br>
+
+      <b>Phone:</b>
+      ${escapeInvoiceHTML(address.phone || "Not Available")}
+
+      <br>
+
+      <b>Email:</b>
+      ${escapeInvoiceHTML(order.email || "Not Available")}
+
+    </p>
+
+  </div>
+
+
+  <!-- DELIVERY ADDRESS -->
+
+  <div class="section">
+
+    <h3>Delivery Address</h3>
+
+    <p>
+
+      ${escapeInvoiceHTML(address.address || "")}
+
+      <br>
+
+      ${escapeInvoiceHTML(address.city || "")},
+
+      ${escapeInvoiceHTML(address.state || "")}
+
+      <br>
+
+      <b>Pincode:</b>
+      ${escapeInvoiceHTML(address.pincode || "")}
+
+    </p>
+
+  </div>
+
+
+  <!-- PRODUCTS -->
+
+  <div class="section">
+
+    <h3>Order Items</h3>
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>Product</th>
+
+          <th class="center">Qty</th>
+
+          <th class="right">Price</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        ${itemsHTML}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <!-- TOTAL -->
+
+  <div class="total-box">
+
+    <div class="total-row">
+
+      <span>Subtotal</span>
+
+      <span>
+        ₹${subtotal.toFixed(2)}
+      </span>
+
+    </div>
+
+
+    <div class="total-row">
+
+      <span>Delivery Charges</span>
+
+      <span>
+
+        ${
+          deliveryCharge > 0
+            ? "₹" + deliveryCharge.toFixed(2)
+            : "₹0.00"
+        }
+
+      </span>
+
+    </div>
+
+
+    <div class="total-row grand-total">
+
+      <span>TOTAL</span>
+
+      <span>
+        ₹${Number(order.total || 0).toFixed(2)}
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- PAYMENT -->
+
+  <div class="payment">
+
+    <b>Payment Method:</b>
+    ${escapeInvoiceHTML(paymentMethod)}
+
+    <br><br>
+
+    <b>Payment Status:</b>
+    ${escapeInvoiceHTML(paymentStatus)}
+
+  </div>
+
+
+  <!-- DELIVERY -->
+
+  <div class="delivery">
+
+    🚚
+
+    <b>Expected Delivery:</b>
+
+    ${escapeInvoiceHTML(deliveryDate)}
+
+  </div>
+
+
+  <!-- FOOTER -->
+
+  <div class="footer">
+
+    <p>
+      Thank you for shopping with RK FASHIONS! ❤️
+    </p>
+
+    <b>
+      RK FASHIONS
+    </b>
+
+  </div>
+
+
+</div>
+
+
+</body>
+
+</html>
+
+`;
+
+}
+  function escapeInvoiceHTML(value) {
+
+  const div = document.createElement("div");
+
+  div.textContent = value ?? "";
+
+  return div.innerHTML;
+
+}
+  async function downloadInvoice(orderId) {
+
+  const order =
+    await getOrderForInvoice(orderId);
+
+  if (!order) return;
+
+
+  const invoiceHTML =
+    createInvoiceHTML(order);
+
+
+  const blob =
+    new Blob(
+      [invoiceHTML],
+      { type: "text/html" }
+    );
+
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const a =
+    document.createElement("a");
+
+
+  a.href = url;
+
+
+  a.download =
+    `RK-FASHIONS-Invoice-${orderId}.html`;
+
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  document.body.removeChild(a);
+
+
+  URL.revokeObjectURL(url);
+
+}
+  async function printInvoice(orderId) {
+
+  const order =
+    await getOrderForInvoice(orderId);
+
+  if (!order) return;
+
+
+  const invoiceHTML =
+    createInvoiceHTML(order);
+
+
+  const invoiceWindow =
+    window.open(
+      "",
+      "_blank",
+      "width=900,height=700"
+    );
+
+
+  if (!invoiceWindow) {
+
+    alert(
+      "Please allow pop-ups to print the invoice."
+    );
+
+    return;
+  }
+
+
+  invoiceWindow.document.open();
+
+  invoiceWindow.document.write(
+    invoiceHTML
+  );
+
+  invoiceWindow.document.close();
+
+
+  invoiceWindow.onload = function() {
+
+    invoiceWindow.focus();
+
+    invoiceWindow.print();
+
+  };
+
+}
 // REGISTER
 async function register() {
 
@@ -2419,15 +3196,35 @@ async function confirmPayment(method) {
     ? addressDoc.data()
     : null;
 
-  const order = {
-    email: currentUser.email,
-    uid: currentUser.uid,
-    items: cart,
-    total: total,
-    date: new Date().toLocaleString(),
-    address: address,
-    status: "Processing"
-  };
+ const order = {
+
+  email: currentUser.email,
+
+  uid: currentUser.uid,
+
+  items: cart,
+
+  total: total,
+
+  date: new Date().toLocaleString(),
+
+  address: address,
+
+  status: "Processing",
+
+  paymentMethod: method,
+
+  paymentStatus: "Paid",
+
+  invoiceNumber:
+    "RKF-" +
+    new Date().getFullYear() +
+    String(new Date().getMonth() + 1).padStart(2, "0") +
+    String(new Date().getDate()).padStart(2, "0") +
+    "-" +
+    Date.now().toString().slice(-6)
+
+};
 
 await saveOrder(order);
 
