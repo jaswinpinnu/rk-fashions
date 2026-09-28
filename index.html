@@ -1798,6 +1798,12 @@ async function showOrderHistory() {
       const order = docSnap.data();
       const orderId = docSnap.id;
 
+      // 🔥 IMPORTANT:
+      // Don't display cancelled orders
+      if (order.status === "Cancelled") {
+        return;
+      }
+
       html += `
 
         <div class="card">
@@ -1866,33 +1872,13 @@ async function showOrderHistory() {
 
           <br>
 
-          ${
-            order.status !== "Cancelled"
+          <button
+            style="background:red;color:white"
+            onclick="cancelOrder('${orderId}')">
 
-            ? `
+            ❌ Cancel Order
 
-              <button
-                style="background:red;color:white"
-                onclick="cancelOrder('${orderId}')">
-
-                ❌ Cancel Order
-
-              </button>
-
-            `
-
-            : `
-
-              <button
-                disabled
-                style="background:gray;color:white">
-
-                Cancelled
-
-              </button>
-
-            `
-          }
+          </button>
 
         </div>
 
