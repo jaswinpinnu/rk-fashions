@@ -3380,10 +3380,23 @@ window.onload = async function () {
 };
 async function cancelOrder(orderId) {
   try {
-    const confirmed = confirm("Are you sure you want to cancel this order?");
+    const confirmed = confirm(
+      "Are you sure you want to cancel this order?"
+    );
+
     if (!confirmed) return;
 
+    const currentUser =
+      JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!currentUser) {
+      alert("Please login first ❌");
+      return;
+    }
+
     const orderRef = doc(db, "orders", orderId);
+
+    // Get order
     const orderSnap = await getDoc(orderRef);
 
     if (!orderSnap.exists()) {
@@ -3393,9 +3406,30 @@ async function cancelOrder(orderId) {
 
     const order = orderSnap.data();
 
+    // Check ownership
+    if (order.uid !== currentUser.uid) {
+      alert("You cannot cancel this order ❌");
+      return;
+    }
+
+    // Already cancelled?
+    if (order.status === "Cancelled") {
+      alert("This order is already cancelled.");
+      return;
+    }
+
+    // IMPORTANT:
+    // Update Firestore BEFORE opening WhatsApp
+    await updateDoc(orderRef, {
+      status: "Cancelled",
+      cancelledAt: new Date().toISOString(),
+      cancelledBy: currentUser.uid
+    });
+
+    // WhatsApp message
     const phone = "919704974080";
 
-    const itemsText = order.items
+    const itemsText = (order.items || [])
       .map(i => `• ${i.name} - ₹${i.price}`)
       .join("\n");
 
@@ -3403,28 +3437,22 @@ async function cancelOrder(orderId) {
       `❌ ORDER CANCELLED\n\n` +
       `📦 Products:\n${itemsText}\n\n` +
       `💰 Total: ₹${order.total}\n` +
-      `📅 ${order.date}\n\n` +
+      `📅 ${order.date || ""}\n\n` +
       `⚠️ Customer cancelled this order.`;
 
-    const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+    const url =
+      `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
 
-    // Open WhatsApp immediately
-    window.location.href = url;
+    // Open WhatsApp AFTER Firestore succeeds
+    window.open(url, "_blank");
 
-    // Delete the order after a short delay
-    setTimeout(async () => {
-      try {
-        await deleteDoc(orderRef);
-        alert("✅ Order Cancelled Successfully");
-        showOrderHistory();
-      } catch (err) {
-        console.error(err);
-        alert("Order cancellation failed ❌");
-      }
-    }, 2000);
+    alert("✅ Order Cancelled Successfully");
+
+    // Refresh order history
+    await showOrderHistory();
 
   } catch (err) {
-    console.error(err);
+    console.error("Cancel order error:", err);
     alert("Failed to cancel order ❌");
   }
 }
@@ -3679,6 +3707,7 @@ async function loadCartFromFirestore() {
   doc,
   setDoc,
   getDoc,
+  updateDoc,
   serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 import {
@@ -3734,6 +3763,7 @@ window.where = where;
 window.setDoc = setDoc;
 window.getDoc = getDoc;
 window.deleteDoc = deleteDoc;
+window.updateDoc = updateDoc;
 window.showProductDetails = showProductDetails;
 window.loadProductReviews = loadProductReviews;
 window.selectReviewRating = selectReviewRating;
