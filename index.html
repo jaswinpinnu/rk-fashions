@@ -1922,7 +1922,7 @@ function loadProducts() {
 </div>
     `).join("");
 }
-  function showWishlist() {
+  async function showWishlist() {
 
   const currentUser =
     JSON.parse(localStorage.getItem("currentUser"));
@@ -1931,72 +1931,78 @@ function loadProducts() {
     alert("Please login first ❌");
     return;
   }
-
-  const wishlist =
-    JSON.parse(localStorage.getItem("wishlist")) || [];
 
   const container =
     document.getElementById("wishlistProducts");
 
-  if (wishlist.length === 0) {
+  container.innerHTML = "<h3>Loading Wishlist... ❤️</h3>";
+
+  try {
+
+    const wishlistRef =
+      collection(db, "users", currentUser.uid, "wishlist");
+
+    const snapshot = await getDocs(wishlistRef);
+
+    if (snapshot.empty) {
+      container.innerHTML =
+        "<h3>❤️ Your wishlist is empty</h3>";
+
+      showPage("wishlistPage");
+      return;
+    }
+
+    const wishlist = snapshot.docs.map(docSnap => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
 
     container.innerHTML =
-      "<h3>❤️ Your wishlist is empty</h3>";
+      wishlist.map(product => `
+
+        <div class="card">
+
+          <img
+            src="${product.image}"
+            onclick="showProductDetails('${product.id}')"
+            style="cursor:pointer;"
+          >
+
+          <h4>${product.name}</h4>
+
+          <p>₹${product.price}</p>
+
+          <p>
+            <b>Size:</b>
+            ${product.size || "Free Size"}
+          </p>
+
+          <button
+            onclick="addToCartById('${product.id}')">
+            🛒 Add to Cart
+          </button>
+
+          <button
+            onclick="removeFromWishlist('${product.id}')"
+            style="background:red;">
+            ❌ Remove
+          </button>
+
+        </div>
+
+      `).join("");
 
     showPage("wishlistPage");
-    return;
+
+  } catch (error) {
+
+    console.error("Wishlist loading error:", error);
+
+    container.innerHTML =
+      "<h3>Unable to load wishlist ❌</h3>";
   }
-
-  container.innerHTML =
-    wishlist.map(product => `
-
-      <div class="card">
-
-        <img
-          src="${product.image}"
-          onclick="showProductDetails('${product.id}')"
-          style="cursor:pointer;"
-        >
-
-        <h4>${product.name}</h4>
-
-        <p>₹${product.price}</p>
-
-        <button
-          onclick="addToCartById('${product.id}')">
-          🛒 Add to Cart
-        </button>
-
-        <button
-          onclick="removeFromWishlist('${product.id}')"
-          style="background:red;">
-          ❌ Remove
-        </button>
-
-      </div>
-
-    `).join("");
-
-  showPage("wishlistPage");
 }
-  function removeFromWishlist(productId) {
-
-  let wishlist =
-    JSON.parse(localStorage.getItem("wishlist")) || [];
-
-  wishlist =
-    wishlist.filter(item => item.id !== productId);
-
-  localStorage.setItem(
-    "wishlist",
-    JSON.stringify(wishlist)
-  );
-
-  alert("Removed from Wishlist ❌");
-
-  showWishlist();
-}
-  function addToWishlist(productId) {
+  async function removeFromWishlist(productId) {
 
   const currentUser =
     JSON.parse(localStorage.getItem("currentUser"));
@@ -2006,30 +2012,84 @@ function loadProducts() {
     return;
   }
 
-  let wishlist =
-    JSON.parse(localStorage.getItem("wishlist")) || [];
+  try {
 
-  const alreadyExists =
-    wishlist.some(item => item.id === productId);
+    await deleteDoc(
+      doc(
+        db,
+        "users",
+        currentUser.uid,
+        "wishlist",
+        productId
+      )
+    );
 
-  if (alreadyExists) {
-    alert("Already in Wishlist ❤️");
+    alert("Removed from Wishlist ❌");
+
+    showWishlist();
+
+  } catch (error) {
+
+    console.error("Remove wishlist error:", error);
+
+    alert("Could not remove wishlist item ❌");
+  }
+}
+ async function addToWishlist(productId) {
+
+  const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+  if (!currentUser) {
+    alert("Please login first ❌");
     return;
   }
 
-  const product =
-    data.find(p => p.id === productId);
+  try {
 
-  if (!product) return;
+    const product =
+      data.find(p => p.id === productId);
 
-  wishlist.push(product);
+    if (!product) {
+      alert("Product not found ❌");
+      return;
+    }
 
-  localStorage.setItem(
-    "wishlist",
-    JSON.stringify(wishlist)
-  );
+    const wishlistItemRef =
+      doc(
+        db,
+        "users",
+        currentUser.uid,
+        "wishlist",
+        productId
+      );
 
-  alert("Added to Wishlist ❤️");
+    const existing =
+      await getDoc(wishlistItemRef);
+
+    if (existing.exists()) {
+      alert("Already in Wishlist ❤️");
+      return;
+    }
+
+    await setDoc(wishlistItemRef, {
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.category,
+      size: product.size || "Free Size",
+      image: product.image,
+      addedAt: new Date().toISOString()
+    });
+
+    alert("Added to Wishlist ❤️");
+
+  } catch (error) {
+
+    console.error("Add wishlist error:", error);
+
+    alert("Could not add to wishlist ❌");
+  }
 }
 // CART
 async function addToCartById(productId) {
