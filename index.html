@@ -3105,6 +3105,23 @@ function searchProducts() {
     JSON.stringify(data)
   );
 }
+function restoreStock(orderedItems) {
+
+  orderedItems.forEach(item => {
+
+    const product = data.find(p => p.id === item.id);
+
+    if (product) {
+      product.stock += 1;
+    }
+
+  });
+
+  localStorage.setItem(
+    "products",
+    JSON.stringify(data)
+  );
+}
 async function saveAddress() {
 
   if(
@@ -3411,6 +3428,7 @@ async function cancelOrder(orderId) {
       cancelledAt: new Date().toISOString(),
       cancelledBy: currentUser.uid
     });
+restoreStock(order.items);
 
     // WhatsApp message
     const phone = "919704974080";
