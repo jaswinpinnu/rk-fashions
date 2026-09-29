@@ -1831,11 +1831,6 @@ async function showOrderHistory() {
           </p>
 
           <p>
-            <b>Status:</b>
-            ${order.status || "Processing"}
-          </p>
-
-          <p>
             <b>Payment:</b>
             ${order.paymentMethod || "UPI"}
           </p>
@@ -3212,8 +3207,6 @@ async function confirmPayment(method) {
   date: new Date().toLocaleString(),
 
   address: address,
-
-  status: "Processing",
 
   paymentMethod: method,
 
