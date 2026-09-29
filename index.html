@@ -3414,14 +3414,15 @@ async function cancelOrder(orderId) {
       return;
     }
 
-    // IMPORTANT:
     // Update Firestore BEFORE opening WhatsApp
     await updateDoc(orderRef, {
       status: "Cancelled",
       cancelledAt: new Date().toISOString(),
       cancelledBy: currentUser.uid
     });
-restoreStock(order.items);
+
+    // Restore stock
+    restoreStock(order.items);
 
     // WhatsApp message
     const phone = "919704974080";
