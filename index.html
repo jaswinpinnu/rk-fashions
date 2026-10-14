@@ -51,17 +51,25 @@
       margin:10px;
       width:220px;
     }
-    .address-box {
-  position:absolute;
-  top:20px;
-  right:20px;
-  width:250px;
-  padding:12px;
-  border-radius:10px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.2);
-  font-size:13px;
-  text-align:left;
+
+.address-box {
+  position: static;
+  width: min(100%, 320px);
+  box-sizing: border-box;
+  margin: 16px auto;
+  padding: 14px;
+  border-radius: 10px;
+  background: #fff;
+  color: #222;
+  border: 1px solid #ddd;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 13px;
+  line-height: 1.7;
+  text-align: left;
+  overflow-wrap: anywhere;
+  z-index: 10000;
 }
+
 
     button {
       padding:10px 15px;
@@ -1900,17 +1908,25 @@ showPage("categoryPage");
   }
 }
 
-function logout(){
-  alert("Logged out 🚪");
 
-  localStorage.removeItem("currentUser"); // 🔥 important
+async function logout() {
+  try {
+    // Load the saved address before removing the logged-in user.
+    await showSavedAddress();
 
-  document.getElementById("email").value = "";
-  document.getElementById("password").value = "";
-  localStorage.removeItem("cart");
+    localStorage.removeItem("currentUser");
+    localStorage.removeItem("cart");
 
-  showPage("loginPage");
-  showSavedAddress();
+    document.getElementById("email").value = "";
+    document.getElementById("password").value = "";
+
+    showPage("loginPage");
+
+    alert("Logged out 🚪");
+  } catch (error) {
+    console.error("Logout/address display error:", error);
+    alert("Unable to load your saved address. Please try again.");
+  }
 }
 
 async function resetPassword() {
