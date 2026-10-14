@@ -707,13 +707,13 @@ header {
   }
 }
 
-/* Glass effect for pages */
+/* Transparent pages: remove the white panel behind page content */
 .container {
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: none;
+  box-shadow: none;
 }
 
 /* 3D page entrance */
