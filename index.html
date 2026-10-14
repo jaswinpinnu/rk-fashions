@@ -52,23 +52,47 @@
       width:220px;
     }
 
+
+/* Saved address — top-right corner, transparent background */
 .address-box {
-  position: static;
-  width: min(100%, 320px);
+  position: fixed;
+  top: 25px;
+  right: 25px;
+  left: auto;
+
+  width: 280px;
+  max-width: calc(100vw - 30px);
   box-sizing: border-box;
-  margin: 16px auto;
-  padding: 14px;
-  border-radius: 10px;
-  background: #fff;
-  color: #222;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  font-size: 13px;
+
+  padding: 12px;
+  margin: 0;
+
+  background: transparent;
+  color: #111;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+
+  font-size: 14px;
   line-height: 1.7;
   text-align: left;
   overflow-wrap: anywhere;
+
   z-index: 10000;
 }
+
+/* Mobile screens */
+@media (max-width: 600px) {
+  .address-box {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: calc(100% - 30px);
+    max-width: 320px;
+    margin: 20px auto;
+  }
+}
+
 
 
     button {
