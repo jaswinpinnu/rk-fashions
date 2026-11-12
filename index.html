@@ -4,6 +4,7 @@
   <title>RK FASHIONS</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23fb641b'/%3E%3Ctext x='50%25' y='55%25' font-size='25' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'%3ERK%3C/text%3E%3C/svg%3E">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
   <style>
     body {
@@ -906,6 +907,7 @@ button:active {
 
 </style>
 </head>
+<body>
 
 <script>
 (() => {
@@ -960,10 +962,6 @@ button:active {
   });
 })();
 </script>
-</body>
-</html>
-
-<body>
 
 <header>RK FASHIONS</header>
 <button id="logoutBtn" onclick="logout()">🚪 Logout</button>
@@ -1941,6 +1939,11 @@ async function logout() {
   try {
     // Load the saved address before removing the logged-in user.
     await showSavedAddress();
+
+    // End the Firebase session as well as clearing local app state.
+    if (auth.currentUser) {
+      await signOut(auth);
+    }
 
     localStorage.removeItem("currentUser");
     localStorage.removeItem("cart");
@@ -3652,31 +3655,11 @@ window.open(url, "_blank");
 
   alert("Now attach the screenshot manually in WhatsApp 📤");
 }
-window.onload = async function () {
-
-  if ("Notification" in window) {
-
-    const permission = await Notification.requestPermission();
-
-    if (permission === "granted") {
-
-      await getFCMToken();
-
-      if (!localStorage.getItem("welcomeNotification")) {
-
-        localStorage.setItem("welcomeNotification", "true");
-
-        new Notification("🎉 RK FASHIONS", {
-          body: "Thank you for visiting RK FASHIONS!",
-          icon: "/icon-192.png"
-        });
-
-      }
-    }
-  }
-
+// Start the app without triggering a notification permission prompt.
+// Push notifications are initialized after a user signs in and has granted permission.
+window.addEventListener("load", () => {
   showLoadingThenLogin();
-};
+});
 async function cancelOrder(orderId) {
   try {
     const confirmed = confirm(
@@ -3907,41 +3890,57 @@ async function googleRegister() {
     alert(error.message);
   }
 }
-  async function getFCMToken() {
+async function getFCMToken() {
   try {
     console.log("getFCMToken called");
 
     if (!auth.currentUser) {
-      console.log("No logged in user");
+      console.info("FCM skipped: no authenticated user.");
       return;
     }
-    console.log("Notification Permission:", Notification.permission);
-  const token = await getToken(messaging, {
-  vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU",
-  serviceWorkerRegistration: registration
-});
 
-    console.log("Token:", token);
-
-    if (token) {
-      await setDoc(
-        doc(db, "users", auth.currentUser.uid),
-        {
-          email: auth.currentUser.email,
-          token: token
-        },
-        { merge: true }
-      );
-
-      console.log("Token saved");
-      alert("Token saved");
-    } else {
-      alert("No token received");
+    if (!("Notification" in window)) {
+      console.info("FCM skipped: this browser does not support notifications.");
+      return;
     }
 
+    // Ask only after a sign-in/register action, never automatically on page load.
+    if (Notification.permission === "default") {
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") return;
+    } else if (Notification.permission !== "granted") {
+      console.info("FCM skipped: notification permission is blocked.");
+      return;
+    }
+
+    if (!window.messaging || !window.registration) {
+      console.info("FCM skipped: messaging or service worker is unavailable.");
+      return;
+    }
+
+    const token = await getToken(messaging, {
+      vapidKey: "BMbdr1-Nhi5jEyKUzjn61BJeY5zwD8hEpaeiWftoJCSOqbqVMOQ1mD83zVuz_cglis_VI-tEb2CLoRw89vP2epU",
+      serviceWorkerRegistration: registration
+    });
+
+    if (!token) {
+      console.warn("FCM did not return a registration token.");
+      return;
+    }
+
+    await setDoc(
+      doc(db, "users", auth.currentUser.uid),
+      {
+        email: auth.currentUser.email,
+        token: token
+      },
+      { merge: true }
+    );
+
+    console.log("FCM token saved successfully.");
   } catch (err) {
-    console.error(err);
-    alert(err.message);
+    // Push notifications are optional; a token failure must not break login.
+    console.error("FCM token error:", err);
   }
 }
 async function saveCartToFirestore() {
@@ -4014,7 +4013,8 @@ async function loadCartFromFirestore() {
 import {
   getMessaging,
   getToken,
-  onMessage 
+  onMessage,
+  isSupported
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging.js";
   const firebaseConfig = {
     apiKey: "AIzaSyCO9YJ1SoZbmxWtiDhORRFqfNsDW48km6o",
@@ -4033,22 +4033,42 @@ import {
 window.provider = provider;
 window.signInWithPopup = signInWithPopup;
   const db = getFirestore(app);
-const messaging = getMessaging(app);
-const registration = await navigator.serviceWorker.register(
-  "/rk-fashions/firebase-messaging-sw.js"
-);
+// Messaging is optional: unsupported browsers must still be able to use the store.
+const messagingSupported = await isSupported().catch(() => false);
+const messaging = messagingSupported ? getMessaging(app) : null;
+let registration = null;
+
+if (messaging && "serviceWorker" in navigator) {
+  try {
+    // Relative path works under the GitHub Pages /rk-fashions/ project path.
+    registration = await navigator.serviceWorker.register(
+      "./firebase-messaging-sw.js"
+    );
+  } catch (error) {
+    console.warn("FCM service worker registration failed:", error);
+  }
+}
 
 window.registration = registration;
-  window.messaging = messaging;
+window.messaging = messaging;
 window.getToken = getToken;
-onMessage(messaging, (payload) => {
-  console.log(payload);
 
-  new Notification(payload.notification.title, {
-    body: payload.notification.body,
-    icon: "/icon-192.png"
+if (messaging) {
+  onMessage(messaging, (payload) => {
+    console.log("Foreground message received:", payload);
+
+    if (
+      "Notification" in window &&
+      Notification.permission === "granted" &&
+      payload.notification
+    ) {
+      new Notification(payload.notification.title || "RK FASHIONS", {
+        body: payload.notification.body || "You have a new update.",
+        icon: "./icon-192.png"
+      });
+    }
   });
-});
+}
 window.getFCMToken = getFCMToken; 
   window.auth = auth;
 window.db = db;
@@ -4065,6 +4085,7 @@ window.setDoc = setDoc;
 window.getDoc = getDoc;
 window.deleteDoc = deleteDoc;
 window.updateDoc = updateDoc;
+window.serverTimestamp = serverTimestamp;
 window.showProductDetails = showProductDetails;
 window.loadProductReviews = loadProductReviews;
 window.selectReviewRating = selectReviewRating;
